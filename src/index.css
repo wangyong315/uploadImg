@@ -1,0 +1,92 @@
+.modal-layer {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  visibility: hidden;
+  transform: scale(1.1);
+  transition: opacity 0.25s 0s, transform 0.25s;
+}
+.modal-layer.show {
+  visibility: visible;
+  transform: scale(1.0);
+  transition: opacity 0.25s 0s, transform 0.25s;
+}
+.modal-dialog-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border-radius: 0.5rem;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+button {
+  background-color: #fff;
+  border-radius: 4px;
+  font-size: 12px;
+  border-color: #e8e8e8;
+  background-image: none;
+  outline: none;
+  color: #fff;
+  background-color: #1890ff;
+  border-color: #1890ff;
+}
+#option {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  padding: 16px;
+  background-color: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+}
+#imgWrap {
+  margin-top: 56px;
+}
+#imgWrap ul {
+  overflow: hidden;
+}
+#imgWrap .small {
+  width: 200px;
+  float: left;
+  overflow: hidden;
+}
+#imgWrap .small img {
+  width: 200px;
+}
+#imgWrap .big img {
+  width: 1000px;
+}
+ul li{
+  list-style-type: none;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+#multipleFile {
+  display: none;
+}
+
+.uploadBtn {
+  padding: 4px 10px;
+  background-color: #1890ff;
+  color: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.uploadSpan {
+  font-size: 12px;
+  padding: 12px;
+}
+#message{
+  font-size: 12px;
+}

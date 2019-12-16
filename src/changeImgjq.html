@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"> 
+  <title>文件上传图片，显示缩略图</title>
+  <link rel="stylesheet" type="text/css" href="./index.css">
+  <script type="text/javascript" src="./jquery.js"></script>
+  <script type="text/javascript" src="./index.js"></script>
+</head>
+<body>
+  <div id="option">
+    <label for="multipleFile" class='uploadBtn'>上传文件</label>
+    <span id="chooseFile" class="uploadSpan">请选择文件</span>
+    <input id="multipleFile" type="file" name="file" multiple accept="image/png, image/jpeg" />
+    <span class='uploadBtn' id="zoomBigImg">全部显示大图</span>
+    <span class='uploadBtn' id="zoomSmallImg">显示全部缩略图</span>
+    <span class='uploadBtn' id="clear">清空所有图片</span>
+    <span class='uploadBtn' id="submit">提交</span>
+    <span id="message"></span>
+  </div>
+  <div id="imgWrap"></div>
+</body>
+</html>
