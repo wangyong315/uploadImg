@@ -115,32 +115,21 @@ $(function(){
   $('#imgWrap').click(function (event) {
     event = event || window.event;
     console.log('ev', event);
-    const imgSrc = event && event.target && event.target.currentSrc
-    var target = event.target || event.srcElement;
-    console.log('target', target.tagName);
     
+    var target = event.target || event.srcElement;
     var imgParentNode = target.parentNode
-    if (target.tagName === 'IMG' && imgParentNode.tagName === 'LI') {
-      const dialogUtil = importFromBelow();
-      const DIALOG_ID = 'my-modal-dialog';
-      const contentHtml = `
-        <div class="modal-dialog-content" id="modal-dialog-content">
-          <img class="modal-img" src=${imgSrc} alt="大图" />
-          <div>
-            <button id="dialog-close-button">close modal dialog</button>
-          </div>
-        </div
-      `;
-      dialogUtil.init({
-        id: DIALOG_ID,
-        contentHtml,
-        closeWhenClickLayer: false
-      });
-      const closeButtonEle = document.querySelector('#dialog-close-button');
-      closeButtonEle.onclick = function (e) {
-        dialogUtil.close(DIALOG_ID);
-      };
+    if (imgParentNode.tagName === 'LI') {
       dialogUtil.popup(DIALOG_ID);
+      // if (imgParentNode.getAttribute('class')) {
+      //   var classVal = imgParentNode.getAttribute('class')
+      //   if(classVal=='small'){
+      //     imgParentNode.setAttribute('class', 'big')
+      //   } else {
+      //     imgParentNode.setAttribute('class', 'small')
+      //   }
+      // } else {
+      //   imgParentNode.setAttribute('class', 'small')
+      // }
     }
   })
   
@@ -177,7 +166,30 @@ $(function(){
     xhr.send(formData)
   });
 
-  
+  const dialogUtil = importFromBelow();
+  const DIALOG_ID = 'my-modal-dialog';
+  const contentHtml = `
+    <div class="modal-dialog-content" id="modal-dialog-content">
+      <div>这里是弹窗内容</div>
+      <div>
+        <button id="dialog-close-button">close modal dialog</button>
+      </div>
+    </div
+  `;
+  dialogUtil.init({
+    id: DIALOG_ID,
+    contentHtml,
+    // closeWhenClickLayer: false
+  });
+  const closeButtonEle = document.querySelector('#dialog-close-button');
+  closeButtonEle.onclick = function (e) {
+    dialogUtil.close(DIALOG_ID);
+  };
+  const triggerButton = document.querySelector('#trigger-button');
+  triggerButton.onclick = function (e) {
+    dialogUtil.popup(DIALOG_ID);
+  };
+
 
   function importFromBelow() {
     function init(options) {
