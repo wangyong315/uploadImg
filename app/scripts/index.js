@@ -118,23 +118,24 @@ $(function(){
     const imgSrc = event && event.target && event.target.currentSrc
     var target = event.target || event.srcElement;
     console.log('target', target.tagName);
-    
     var imgParentNode = target.parentNode
     if (target.tagName === 'IMG' && imgParentNode.tagName === 'LI') {
       const dialogUtil = importFromBelow();
       const DIALOG_ID = 'my-modal-dialog';
       const contentHtml = `
         <div class="modal-dialog-content" id="modal-dialog-content">
-          <img class="modal-img" src=${imgSrc} alt="大图" />
+          <img  id="modal-img" class="modal-img" src=${imgSrc} alt="大图" />
           <div>
+            <button id="dialog-prev-button">上一个</button>
             <button id="dialog-close-button">close modal dialog</button>
+            <button id="dialog-next-button">下一个</button>
           </div>
         </div
       `;
       dialogUtil.init({
         id: DIALOG_ID,
         contentHtml,
-        closeWhenClickLayer: false
+        closeWhenClickLayer: true
       });
       const closeButtonEle = document.querySelector('#dialog-close-button');
       closeButtonEle.onclick = function (e) {
@@ -177,26 +178,27 @@ $(function(){
     xhr.send(formData)
   });
 
-  
-
   function importFromBelow() {
     function init(options) {
-        const {id: dialogId, contentHtml, closeWhenClickLayer = true} = options;
-        const layerEle = document.createElement('div');
-        layerEle.setAttribute('class', 'modal-layer');
-        layerEle.setAttribute('id', dialogId);
-        const contentContainerEle = document.createElement('div');
-        contentContainerEle.setAttribute('class', 'modal-dialog-container');
-        contentContainerEle.innerHTML = contentHtml;
-        layerEle.appendChild(contentContainerEle);
-        document.body.appendChild(layerEle);
-        if (closeWhenClickLayer) {
-            document.onclick = function (e) {
-                if (e.target === layerEle) {
-                    close(dialogId);
-                }
-            }
+      const {id: dialogId, contentHtml, closeWhenClickLayer = true} = options;
+      const layerEle = document.createElement('div');
+      layerEle.setAttribute('class', 'modal-layer');
+      layerEle.setAttribute('id', dialogId);
+      const contentContainerEle = document.createElement('div');
+      contentContainerEle.setAttribute('class', 'modal-dialog-container');
+      contentContainerEle.innerHTML = contentHtml;
+      layerEle.appendChild(contentContainerEle);
+      console.log('jjkhfdskh', $('.modal-img'));
+      console.log('window.innerHeihr', window.innerHeight);
+      document.body.appendChild(layerEle);
+      $('img').attr({ height: window.innerHeight*0.85 });
+      if (closeWhenClickLayer) {
+        document.onclick = function (e) {
+          if (e.target === layerEle) {
+            close(dialogId);
+          }
         }
+      }
     }
 
     /**
@@ -204,18 +206,18 @@ $(function(){
      * @param {string} dialogId dialog id
      */
     function destroy(dialogId) {
-        const dialogEle = document.querySelector(`#${dialogId}`);
-        dialogEle.parentNode.removeChild(dialogEle);
+      const dialogEle = document.querySelector(`#${dialogId}`);
+      dialogEle.parentNode.removeChild(dialogEle);
     }
 
     function popup(dialogId) {
-        const dialogEle = document.querySelector(`#${dialogId}`);
-        dialogEle.classList.add('show');
+      const dialogEle = document.querySelector(`#${dialogId}`);
+      dialogEle.classList.add('show');
     }
 
     function close(dialogId) {
-        const dialogEle = document.querySelector(`#${dialogId}`);
-        dialogEle.classList.remove('show');
+      const dialogEle = document.querySelector(`#${dialogId}`);
+      dialogEle.classList.remove('show');
     }
 
     return {init, destroy, popup, close};
