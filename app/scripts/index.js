@@ -119,6 +119,9 @@ $(function(){
     var target = event.target || event.srcElement;
     console.log('target', target.tagName);
     var imgParentNode = target.parentNode
+    console.log(Array.prototype.slice.call($('img')).indexOf(event.target));
+    window.imgIndex = Array.prototype.slice.call($('img')).indexOf(event.target)
+    
     if (target.tagName === 'IMG' && imgParentNode.tagName === 'LI') {
       const contentHtml = `
         <div class="modal-dialog-content" id="modal-dialog-content">
@@ -184,12 +187,14 @@ $(function(){
   });
 
   $(document).on('click','#prev-button',function(e){
-    console.log('eeee', e);
+    var imgIndex = -- window.imgIndex
+    var imgSrc = Array.prototype.slice.call($('img'))[imgIndex ++].currentSrc
+    $('#modal-img').attr('src', imgSrc)
   });
 
   $(document).on('click','#next-button',function(){
-    $('.modal-layer').remove()
+    var imgIndex = ++ window.imgIndex
+    var imgSrc = Array.prototype.slice.call($('img'))[imgIndex ++].currentSrc
+    $('#modal-img').attr('src', imgSrc)
   });
-
-
 });
