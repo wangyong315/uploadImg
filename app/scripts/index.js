@@ -99,6 +99,7 @@ $(function(){
     var spanEle = document.createElement('p')
     ulEle.setAttribute('class', imgClassName)
     liEle.setAttribute('class', 'small')
+    imgEle.setAttribute('class', 'imgFlag')
     spanEle.setAttribute("style", "white-space: nowrap;width: 200px;overflow: hidden;text-overflow: ellipsis;font-size: 12px; height: 20px");
     imgEle.src = result
     spanEle.innerHTML = name
@@ -114,14 +115,10 @@ $(function(){
 
   $('#imgWrap').click(function (event) {
     event = event || window.event;
-    console.log('ev', event);
     const imgSrc = event && event.target && event.target.currentSrc
     var target = event.target || event.srcElement;
-    console.log('target', target.tagName);
     var imgParentNode = target.parentNode
-    console.log(Array.prototype.slice.call($('img')).indexOf(event.target));
     window.imgIndex = Array.prototype.slice.call($('img')).indexOf(event.target)
-    
     if (target.tagName === 'IMG' && imgParentNode.tagName === 'LI') {
       const contentHtml = `
         <div class="modal-dialog-content" id="modal-dialog-content">
@@ -173,7 +170,6 @@ $(function(){
   function showModa(contentHtml) {
     const layerEle = document.createElement('div');
     layerEle.setAttribute('class', 'modal-layer');
-    // layerEle.setAttribute('id', dialogId);
     const contentContainerEle = document.createElement('div');
     contentContainerEle.setAttribute('class', 'modal-dialog-container');
     contentContainerEle.innerHTML = contentHtml;
@@ -186,15 +182,24 @@ $(function(){
     $('.modal-layer').remove()
   });
 
-  $(document).on('click','#prev-button',function(e){
+  $(document).on('click','#prev-button',function(){
     var imgIndex = -- window.imgIndex
-    var imgSrc = Array.prototype.slice.call($('img'))[imgIndex ++].currentSrc
-    $('#modal-img').attr('src', imgSrc)
+    if (imgIndex >= 0) {
+      var imgSrc = Array.prototype.slice.call($('.imgFlag'))[imgIndex].currentSrc
+      $('#modal-img').attr('src', imgSrc)
+    } else {
+      ++ window.imgIndex
+    }
   });
 
   $(document).on('click','#next-button',function(){
     var imgIndex = ++ window.imgIndex
-    var imgSrc = Array.prototype.slice.call($('img'))[imgIndex ++].currentSrc
-    $('#modal-img').attr('src', imgSrc)
+    var imgLength =  Array.prototype.slice.call($('.imgFlag')).length
+    if (imgIndex < imgLength-1) {
+      var imgSrc = Array.prototype.slice.call($('.imgFlag'))[imgIndex].currentSrc
+      $('#modal-img').attr('src', imgSrc)
+    } else {
+      -- window.imgIndex
+    }
   });
 });
