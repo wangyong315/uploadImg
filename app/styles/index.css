@@ -99,8 +99,81 @@ ul li{
   font-size: 12px;
 }
 
+.img-title {
+  position: absolute;
+  background: #fff;
+  opacity: 0.5;
+  bottom: 0;
+}
+
 .close-button {
   position: absolute;
   top: 8px;
   right: 8px;
+  width: 24px;
+  height: 24px;
+  border: 2px solid #bbb;
+  border-radius: 50%;
 }
+
+.close-button::before {
+  content: "\2716";
+  color: #bbb;
+}
+
+#prev-button {
+  position: absolute;
+  top: calc(50% - 16px);
+  left: 8px;
+  width: 32px;
+  height: 32px;
+  border: 2px solid #bbb;
+  border-radius: 50%;
+}
+
+#prev-button:after {
+  position: absolute;
+  top: 9px;
+  left: 11px;
+  width: 12px;
+  height: 12px;
+  border-top: 2px solid #bbb;
+  border-left: 2px solid #bbb;
+  transform: rotate(-45deg);
+  content: "";
+}
+
+#next-button {
+  position: absolute;
+  top: calc(50% - 16px);
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border: 2px solid #bbb;
+  border-radius: 50%;
+}
+
+#next-button:after {
+  position: absolute;
+  top: 8px;
+  left: 6px;
+  width: 12px;
+  height: 12px;
+  border-top: 2px solid #bbb;
+  border-right: 2px solid #bbb;
+  transform: rotate(45deg);
+  content: "";
+}
+
+#next-button:hover, #next-button:hover {
+  background: #1890ff;
+}
+
+
+/* color: red;
+    top: 0px;
+    position: absolute;
+    background: #ccc;
+    border: 1px solid #ccc;
+    opacity: .5;
+    left: calc(50% - 40px); */

@@ -1,7 +1,6 @@
 $(function(){
   var imgWrapEle = $('#imgWrap')
   var multipleFileEle = $('#multipleFile')
-  var messageEle = $('#message')
   var allImgNames = []
   var categoryImgList = []
   var uniqueCategoryImgList = []
@@ -49,6 +48,7 @@ $(function(){
       allImgNames.push(fileName)
     });
     console.log('categoryImgList', categoryImgList);
+    console.log('allImgNames', allImgNames);
     
     $('#chooseFile').html('共上传' + categoryImgList.length + '个文件')
     uniqueCategoryImgList = unique(categoryImgList)
@@ -123,10 +123,12 @@ $(function(){
       const contentHtml = `
         <div class="modal-dialog-content" id="modal-dialog-content">
           <img id="modal-img" class="modal-img" src=${imgSrc} alt="大图" />
+          <div class="img-title">${allImgNames [window.imgIndex]}</div>
           <div>
-            <button id="prev-button">上一个</button>
-            <button class="close-button">X</button>
-            <button id="next-button">下一个</button>
+            <span id="prev-button"></span>
+            <span class="close-button"></span>
+            <span id="next-button"></span>
+            <span class="modal-message"></span>
           </div>
         </div
       `;
@@ -151,13 +153,13 @@ $(function(){
           console.log(xhr.responseText);
           $('#message').html('提交成功，3秒后消失').attr('style', 'color: green')
           setTimeout(() => {
-            messageEle.remove()
+            $('#message').html('')
           }, 3000);
           submitFlag = false
         } else {
           $('#message').html('提交失败，3秒后消失').attr('style', 'color: red')
           setTimeout(() => {
-            messageEle.remove()
+            $('#message').html('')
           }, 3000);
           submitFlag = false
         }
@@ -175,7 +177,8 @@ $(function(){
     contentContainerEle.innerHTML = contentHtml;
     layerEle.appendChild(contentContainerEle);
     document.body.appendChild(layerEle);
-    $('.modal-img').attr({ height: window.innerHeight*0.85 });
+    $('.modal-img').attr({ height: window.innerHeight*0.9 });
+    $('.img-title').attr('style', `left:  calc(${ $('#modal-dialog-content').width()*0.5 - $('.img-title').width()*0.5 }px)`);
   }
   // 关闭
   $(document).on('click','.close-button',function(){
@@ -185,21 +188,49 @@ $(function(){
   $(document).on('click','#prev-button',function(){
     var imgIndex = -- window.imgIndex
     if (imgIndex >= 0) {
+      $('.img-title').html(allImgNames [imgIndex])
+      $('.img-title').attr('style', `left:  calc(${ $('#modal-dialog-content').width()*0.5 - $('.img-title').width()*0.5 }px)`);
       var imgSrc = Array.prototype.slice.call($('.imgFlag'))[imgIndex].currentSrc
       $('#modal-img').attr('src', imgSrc)
     } else {
+      showModalMsg('当前是第一页')
+      setTimeout(() => {
+        clearModalMsg()
+      }, 3000);
       ++ window.imgIndex
     }
   });
+
+  function clearModalMsg(params) {
+    $('.modal-message').html('')
+    $('.modal-message').css({
+      "background-color":"",
+      "padding": ""
+    });
+  }
+
+  function showModalMsg(text) {
+    $('.modal-message').html(text).css({
+      "background-color":"#fff",
+      "color":"red",
+      "padding": "0 4px"
+    });
+  }
 
   // 下一个
   $(document).on('click','#next-button',function(){
     var imgIndex = ++ window.imgIndex
     var imgLength =  Array.prototype.slice.call($('.imgFlag')).length
     if (imgIndex < imgLength) {
+      $('.img-title').html(allImgNames [window.imgIndex])
+      $('.img-title').attr('style', `left:  calc(${ $('#modal-dialog-content').width()*0.5 - $('.img-title').width()*0.5 }px)`);
       var imgSrc = Array.prototype.slice.call($('.imgFlag'))[imgIndex].currentSrc
       $('#modal-img').attr('src', imgSrc)
     } else {
+      showModalMsg('当前是最后一页')
+      setTimeout(() => {
+        clearModalMsg()
+      }, 3000);
       -- window.imgIndex
     }
   });
