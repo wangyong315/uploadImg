@@ -6,7 +6,6 @@
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   visibility: auto;
-  /* transform: scale(1.1); */
   transition: opacity 0.25s 0s, transform 0.25s;
 }
 
@@ -26,7 +25,9 @@
   background-color: white;
   border-radius: 0.5rem;
 }
+
 .modal-dialog-content {
+  /* height: 90%; */
   text-align: center;
 }
 
@@ -55,7 +56,7 @@ button {
   border-radius: 4px;
 }
 #imgWrap {
-  margin-top: 56px;
+  margin-top: 63px;
 }
 #imgWrap ul {
   overflow: hidden;
@@ -96,4 +97,10 @@ ul li{
 }
 #message{
   font-size: 12px;
+}
+
+.close-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
 }

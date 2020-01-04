@@ -40,7 +40,6 @@ $(function(){
     if (!window.FileReader) return;
     var fileList = ev.target.files;  
     console.log('fileList', fileList);
-    
     Object.getOwnPropertyNames(fileList).forEach(function(key){
       var fileName = fileList[key].name
       if (!allImgNames.includes(fileName)) {
@@ -59,6 +58,7 @@ $(function(){
         categoryImgListObj[element] = randomStr()
       }
     }
+    ev.target.value = ''
   })
 
   function unique(arr) {
@@ -125,7 +125,7 @@ $(function(){
           <img id="modal-img" class="modal-img" src=${imgSrc} alt="大图" />
           <div>
             <button id="prev-button">上一个</button>
-            <button class="close-button">X 关闭</button>
+            <button class="close-button">X</button>
             <button id="next-button">下一个</button>
           </div>
         </div
@@ -175,13 +175,13 @@ $(function(){
     contentContainerEle.innerHTML = contentHtml;
     layerEle.appendChild(contentContainerEle);
     document.body.appendChild(layerEle);
-    $('.modal-img').attr({ height: window.innerHeight*0.8 });
+    $('.modal-img').attr({ height: window.innerHeight*0.85 });
   }
-
+  // 关闭
   $(document).on('click','.close-button',function(){
     $('.modal-layer').remove()
   });
-
+  // 上一个
   $(document).on('click','#prev-button',function(){
     var imgIndex = -- window.imgIndex
     if (imgIndex >= 0) {
@@ -192,10 +192,11 @@ $(function(){
     }
   });
 
+  // 下一个
   $(document).on('click','#next-button',function(){
     var imgIndex = ++ window.imgIndex
     var imgLength =  Array.prototype.slice.call($('.imgFlag')).length
-    if (imgIndex < imgLength-1) {
+    if (imgIndex < imgLength) {
       var imgSrc = Array.prototype.slice.call($('.imgFlag'))[imgIndex].currentSrc
       $('#modal-img').attr('src', imgSrc)
     } else {
