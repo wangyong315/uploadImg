@@ -94,6 +94,13 @@ $(function(){
     } else {
       ulEle = document.createElement('ul')
     }
+    if (!document.getElementsByClassName(imgClassName+'title')[0]) {
+      var divEle = document.createElement('div')
+      divEle.setAttribute('class', imgClassName + 'title')
+      divEle.setAttribute('style', "padding-bottom: 16px")
+      divEle.innerHTML = '批次：' + name.split('_')[0]
+      ulEle.appendChild(divEle)
+    }
     var liEle = document.createElement('li')
     var imgEle = document.createElement('img')
     var spanEle = document.createElement('p')
