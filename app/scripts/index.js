@@ -90,35 +90,26 @@ $(function(){
     if (document.getElementsByClassName('tree' + imgClassName)[0]) {
       menuTreeDiv = document.getElementsByClassName('tree' + imgClassName)[0]
       menuNodeUl = document.getElementsByClassName('node' + imgClassName)[0]
-
     } else {
       menuTreeDiv = $('<div></div>')
       menuTreeDiv.html('批次：' + name.split('_')[0])
       menuTreeDiv.addClass(`tree tree${imgClassName}`)
-
       menuNodeUl = $('<ul></ul>')
       menuNodeUl.addClass(`node node${imgClassName}`)
-
       $('.cv_fcv').append(menuTreeDiv)
       $('.cv_fcv').append(menuNodeUl)
     }
 
-    var menuLi = $('<li></li>')
-    menuLi.addClass('node-item')
+    var menuLi = document.createElement('li')
+    menuLi.setAttribute('class', 'node-item')
 
-    var menuChildDiv = $('<div></div>')
+    var menuChildDiv = document.createElement('div')
+    menuChildDiv.setAttribute('class', 'tree')
+    menuChildDiv.innerHTML = name
 
-    menuChildDiv.addClass('tree').html(name)
-    console.log('lilili', menuLi);
-    
-    menuLi.append(menuChildDiv)
-    console.log('menuLi', menuLi);
+    menuLi.appendChild(menuChildDiv)
     
     menuNodeUl.append(menuLi)
-    console.log('menuNodeUl', menuNodeUl);
-    menuLi = null
-
-    
     if (!document.getElementsByClassName(imgClassName+'title')[0]) {
       var divEle = document.createElement('div')
       divEle.setAttribute('class', imgClassName + 'title')

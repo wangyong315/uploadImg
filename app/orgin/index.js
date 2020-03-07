@@ -1,7 +1,4 @@
 $(function(){
-
-  console.log('kjjkjkkjjjk');
-  
   var imgWrapEle = $('#imgWrap')
   var multipleFileEle = $('#multipleFile')
   var allImgNames = []
