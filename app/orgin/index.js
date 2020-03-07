@@ -13,6 +13,7 @@ $(function(){
   // 清空所有图片
   $('#clear').click(function () {
     $('#imgWrap').html('')
+    $('.cv_fcv').html('')
     multipleFileEle.value = ''
     $('#chooseFile').html('请上传文件')
     allImgNames = []
@@ -91,6 +92,9 @@ $(function(){
 
   function drawToImg(result, name) {
     var imgClassName = categoryImgListObj[name.split('_')[0]]
+    console.log('imgclassnames', imgClassName);
+    console.log('categoryImgListObj', categoryImgListObj);
+    
     var ulEle
     if (document.getElementsByClassName(imgClassName)[0]) {
       ulEle = document.getElementsByClassName(imgClassName)[0]
@@ -99,6 +103,15 @@ $(function(){
     }
     if (!document.getElementsByClassName(imgClassName+'title')[0]) {
       var divEle = document.createElement('div')
+      // 设置菜单逻辑
+      var menuDiv = $('<div></div>')
+      var menuUl = $('<ul></ul>')
+      menuDiv.addClass('tree')
+      menuUl.addClass('node')
+      menuDiv.text('批次：' + name.split('_')[0])
+      $('.cv_fcv').append(menuDiv)
+      $('.cv_fcv').append(menuUl)
+      // 设置菜单逻辑
       divEle.setAttribute('class', imgClassName + 'title')
       divEle.setAttribute('style', "padding-bottom: 16px")
       divEle.innerHTML = '批次：' + name.split('_')[0]
@@ -242,6 +255,25 @@ $(function(){
         clearModalMsg()
       }, 3000);
       -- window.imgIndex
+    }
+  });
+  // 
+  $(".tree").each(function(index, element) {
+    if($(this).next(".node").length>0){
+      $(this).addClass("ce_ceng_close");
+    }
+  });
+  $(".tree").click(function(e){
+    var ul = $(this).next(".node");
+    if(ul.css("display")=="none"){
+      ul.slideDown();
+      $(this).addClass("ce_ceng_open");
+      ul.find(".ce_ceng_close").removeClass("ce_ceng_open");
+    }else{
+      ul.slideUp();
+      $(this).removeClass("ce_ceng_open");
+      ul.find(".node").slideUp();
+      ul.find(".ce_ceng_close").removeClass("ce_ceng_open");
     }
   });
 });

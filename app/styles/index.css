@@ -1,3 +1,8 @@
+html, body, ul, li, p, span {
+  margin: 0;
+  padding: 0;
+}
+
 .modal-layer {
   position: fixed;
   left: 0;
@@ -31,10 +36,6 @@
   text-align: center;
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-}
 button {
   background-color: #fff;
   border-radius: 4px;
@@ -55,9 +56,13 @@ button {
   border: 1px solid #e8e8e8;
   border-radius: 4px;
 }
-#imgWrap {
+
+#content {
   margin-top: 63px;
+  margin-left: 150px;
+  display: flex;
 }
+
 #imgWrap ul {
   overflow: hidden;
 }
@@ -167,4 +172,30 @@ ul li{
 
 #next-button:hover, #next-button:hover {
   background: #1890ff;
+}
+
+/* 属性菜单样式 */
+.menu {
+  position: fixed;
+  top: 60px;
+  left: 20px;
+  padding: 16px;
+  background-color: #fff;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.node ul{
+	/* margin-left:20px; */
+}
+.node .node{
+	display:none;
+}
+.node .tree{
+	height:24px;
+	line-height:24px;
+}
+
+.node-item {
+  margin-left: 16px;
 }

@@ -235,3 +235,16 @@ $(function(){
 
 
 });
+
+
+function unique(arr) {
+  if (!Array.isArray(arr)) return
+  var array = []
+  for (var uindex = 0; uindex < arr.length; uindex++) {
+    if (array.indexOf(arr[uindex]) === -1) {
+      array.push(arr[uindex])
+    }
+  }
+  return array
+}
+
