@@ -46,8 +46,15 @@ $(function(){
         printImg(fileList[key])
         allImgNames.push(fileName)
       }
-      if (categoryImgList.findIndex(ele => ele === fileName.split('_')[0]) === -1) {
-        categoryImgList.push(fileName.split('_')[0])
+      var fileNameTit
+      if (fileName.indexOf('_') !== -1) {
+        fileNameTit = fileName.split('_')[0]
+      }
+      if (fileName.indexOf('-') !== -1) {
+        fileNameTit = fileName.split('-')[0]
+      }
+      if (categoryImgList.findIndex(ele => ele === fileNameTit) === -1) {
+        categoryImgList.push(fileNameTit)
       }
     });
 
@@ -76,7 +83,15 @@ $(function(){
 
   function drawToImg(result, name) {
     console.log('name', name);
-    var imgClassName = categoryImgListObj[name.split('_')[0]]
+    
+    var nameTit
+    if (name.indexOf('_') !== -1) {
+      nameTit = name.split('_')[0]
+    }
+    if (name.indexOf('-') !== -1) {
+      nameTit = name.split('-')[0]
+    }
+    var imgClassName = categoryImgListObj[nameTit]
     // 设置图片列表UL
     var ulEle
     if (document.getElementsByClassName(imgClassName)[0]) {
@@ -92,7 +107,7 @@ $(function(){
       menuNodeUl = document.getElementsByClassName('node' + imgClassName)[0]
     } else {
       menuTreeDiv = $('<div></div>')
-      menuTreeDiv.html('批次：' + name.split('_')[0])
+      menuTreeDiv.html('批次：' + nameTit)
       menuTreeDiv.addClass(`tree tree${imgClassName}`)
       menuNodeUl = $('<ul></ul>')
       menuNodeUl.addClass(`node node${imgClassName}`)
