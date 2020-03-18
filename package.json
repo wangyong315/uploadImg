@@ -2,12 +2,13 @@
   "name": "uploadimg",
   "version": "1.0.0",
   "description": "",
-  "main": "index copy.js",
+  "main": "index.js",
   "dependencies": {
     "pump": "^3.0.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "2es5": "gulp",
+    "ugjs": "gulp"
   },
   "author": "",
   "license": "ISC",

@@ -73,6 +73,7 @@ button {
 }
 #imgWrap .small img {
   width: 200px;
+  height: 282px;
 }
 #imgWrap .big img {
   width: 1000px;
@@ -186,7 +187,7 @@ ul li{
 }
 
 .node ul{
-	/* margin-left:20px; */
+	margin-left:20px;
 }
 .node .node{
 	display:none;
@@ -198,4 +199,12 @@ ul li{
 
 .node-item {
   margin-left: 16px;
+}
+
+.ce_ceng_close {
+	background: url(images/cd_zd1.png) left center no-repeat;
+	padding-left: 15px;
+}
+.ce_ceng_open{
+	background:url(images/cd_zd.png) left center no-repeat;
 }

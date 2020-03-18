@@ -1,9 +1,11 @@
 $(function(){
   var imgWrapEle = $('#imgWrap')
   var multipleFileEle = $('#multipleFile')
+  // 所有图片数据
   var allImgNames = []
+  // 所有图片分组
   var categoryImgList = []
-  var uniqueCategoryImgList = []
+  // 图片分组 && className
   var categoryImgListObj = {}
   var submitFlag = false
 
@@ -35,44 +37,29 @@ $(function(){
   }
 
   $('#multipleFile').change(function (ev) {
-    console.log('ev', ev);
     //判断 FileReader 是否被浏览器所支持
     if (!window.FileReader) return;
     var fileList = ev.target.files;  
-    console.log('fileList', fileList);
     Object.getOwnPropertyNames(fileList).forEach(function(key){
       var fileName = fileList[key].name
       if (allImgNames.indexOf(fileName) === -1) {
         printImg(fileList[key])
+        allImgNames.push(fileName)
       }
-      categoryImgList.push(fileName.split('_')[0])
-      allImgNames.push(fileName)
+      if (categoryImgList.findIndex(ele => ele === fileName.split('_')[0]) === -1) {
+        categoryImgList.push(fileName.split('_')[0])
+      }
     });
-    console.log('categoryImgList', categoryImgList);
-    console.log('allImgNames', allImgNames);
-    
-    $('#chooseFile').html('共上传' + categoryImgList.length + '个文件')
-    uniqueCategoryImgList = unique(categoryImgList)
-    for (let index = 0; index < uniqueCategoryImgList.length; index++) {
-      const element = uniqueCategoryImgList[index];
-      if (!categoryImgListObj[element]) {
+
+    $('#chooseFile').html('共上传' + allImgNames.length + '个文件')
+    for (let index = 0; index < categoryImgList.length; index++) {
+      const element = categoryImgList[index];
+      if (!categoryImgList[element]) {
         categoryImgListObj[element] = randomStr()
       }
     }
     ev.target.value = ''
   })
-
-  function unique(arr) {
-    if (!Array.isArray(arr)) return
-    var array = []
-    for (var uindex = 0; uindex < arr.length; uindex++) {
-      if (array.indexOf(arr[uindex]) === -1) {
-        array.push(arr[uindex])
-      }
-    }
-    return array
-  }
-
 
   function printImg(file) {
     if(!file.type.match('image/*')){
@@ -88,32 +75,49 @@ $(function(){
   }
 
   function drawToImg(result, name) {
+    console.log('name', name);
     var imgClassName = categoryImgListObj[name.split('_')[0]]
-    console.log('imgclassnames', imgClassName);
-    console.log('categoryImgListObj', categoryImgListObj);
-    
+    // 设置图片列表UL
     var ulEle
     if (document.getElementsByClassName(imgClassName)[0]) {
       ulEle = document.getElementsByClassName(imgClassName)[0]
     } else {
       ulEle = document.createElement('ul')
     }
+
+    var menuTreeDiv
+    var menuNodeUl
+    if (document.getElementsByClassName('tree' + imgClassName)[0]) {
+      menuTreeDiv = document.getElementsByClassName('tree' + imgClassName)[0]
+      menuNodeUl = document.getElementsByClassName('node' + imgClassName)[0]
+    } else {
+      menuTreeDiv = $('<div></div>')
+      menuTreeDiv.html('批次：' + name.split('_')[0])
+      menuTreeDiv.addClass(`tree tree${imgClassName}`)
+      menuNodeUl = $('<ul></ul>')
+      menuNodeUl.addClass(`node node${imgClassName}`)
+      $('.cv_fcv').append(menuTreeDiv)
+      $('.cv_fcv').append(menuNodeUl)
+    }
+
+    var menuLi = document.createElement('li')
+    menuLi.setAttribute('class', 'node-item')
+
+    var menuChildDiv = document.createElement('div')
+    menuChildDiv.setAttribute('class', 'tree')
+    menuChildDiv.innerHTML = name
+
+    menuLi.appendChild(menuChildDiv)
+    
+    menuNodeUl.append(menuLi)
     if (!document.getElementsByClassName(imgClassName+'title')[0]) {
       var divEle = document.createElement('div')
-      // 设置菜单逻辑
-      var menuDiv = $('<div></div>')
-      var menuUl = $('<ul></ul>')
-      menuDiv.addClass('tree')
-      menuUl.addClass('node')
-      menuDiv.text('批次：' + name.split('_')[0])
-      $('.cv_fcv').append(menuDiv)
-      $('.cv_fcv').append(menuUl)
-      // 设置菜单逻辑
       divEle.setAttribute('class', imgClassName + 'title')
       divEle.setAttribute('style', "padding-bottom: 16px")
       divEle.innerHTML = '批次：' + name.split('_')[0]
       ulEle.appendChild(divEle)
     }
+   
     var liEle = document.createElement('li')
     var imgEle = document.createElement('img')
     var spanEle = document.createElement('p')
@@ -127,6 +131,7 @@ $(function(){
     liEle.appendChild(imgEle)
     liEle.appendChild(spanEle)
     imgWrapEle.append(ulEle)
+    initMenu()
   }
 
   function randomStr() {
@@ -158,7 +163,6 @@ $(function(){
   
   // 提交所有数据
   $("#submit").click(function() {
-    console.log('ubmits');
     if (submitFlag) return
     submitFlag = true
     var formData = new FormData();
@@ -170,7 +174,6 @@ $(function(){
     xhr.onreadystatechange = function () {
       if (xhr.readyState == 4) {
         if (xhr.status == 200) {
-          console.log(xhr.responseText);
           $('#message').html('提交成功，3秒后消失').attr('style', 'color: green')
           setTimeout(() => {
             $('#message').html('')
@@ -233,7 +236,8 @@ $(function(){
     $('.modal-message').html(text).css({
       "background-color":"#fff",
       "color":"red",
-      "padding": "0 4px"
+      "padding": "4px",
+      "border-raduis": '4px'
     });
   }
 
@@ -254,13 +258,17 @@ $(function(){
       -- window.imgIndex
     }
   });
-  // 
-  $(".tree").each(function(index, element) {
-    if($(this).next(".node").length>0){
-      $(this).addClass("ce_ceng_close");
-    }
-  });
-  $(".tree").click(function(e){
+  
+  // 菜单显示逻辑
+  function initMenu() {
+    $(".tree").each(function(index, element) {
+      if($(this).next(".node").length>0){
+        $(this).addClass("ce_ceng_close");
+      }
+    });
+  }
+
+  $('#menu').on('click','.tree',function(e){
     var ul = $(this).next(".node");
     if(ul.css("display")=="none"){
       ul.slideDown();
@@ -272,5 +280,5 @@ $(function(){
       ul.find(".node").slideUp();
       ul.find(".ce_ceng_close").removeClass("ce_ceng_open");
     }
-  });
+  })
 });
