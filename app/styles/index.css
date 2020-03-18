@@ -180,14 +180,19 @@ ul li{
   position: fixed;
   top: 60px;
   left: 20px;
+  max-height: 500px;
   padding: 16px;
+  overflow: auto;
   background-color: #fff;
   border: 1px solid #eee;
   border-radius: 4px;
+  cursor: pointer;
 }
 
 .node ul{
-	margin-left:20px;
+  margin-left:20px;
+  max-height: 400px;
+  overflow: auto;
 }
 .node .node{
 	display:none;
@@ -203,10 +208,16 @@ ul li{
   cursor: pointer;
 }
 
-.ce_ceng_close {
-	background: url(images/cd_zd1.png) left center no-repeat;
-	padding-left: 15px;
+.ce_ceng_close::before {
+  margin-left: 15px;
+  content: "+";
+  border: 1px solid #eee;
+  border-radius: 4px;
 }
-.ce_ceng_open{
-	background:url(images/cd_zd.png) left center no-repeat;
+
+.ce_ceng_open::before {
+  margin-left: 15px;
+  content: "-";
+  border: 1px solid #eee;
+  border-radius: 4px;
 }
