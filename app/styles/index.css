@@ -194,11 +194,13 @@ ul li{
 }
 .node .tree{
 	height:24px;
-	line-height:24px;
+  line-height:24px;
+  cursor: pointer;
 }
 
 .node-item {
   margin-left: 16px;
+  cursor: pointer;
 }
 
 .ce_ceng_close {
