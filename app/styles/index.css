@@ -198,6 +198,8 @@ ul li{
 	display:none;
 }
 .node .tree{
+  display: flex;
+  align-items: center;
 	height:24px;
   line-height:24px;
   cursor: pointer;
@@ -210,14 +212,18 @@ ul li{
 
 .ce_ceng_close::before {
   margin-left: 15px;
-  content: "+";
-  border: 1px solid #eee;
-  border-radius: 4px;
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  content: "";
+  background: url('./treeview.gif') no-repeat -81px -2px;
 }
 
 .ce_ceng_open::before {
   margin-left: 15px;
-  content: "-";
-  border: 1px solid #eee;
-  border-radius: 4px;
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  content: "";
+  background: url('./treeview.gif') no-repeat -66px -25px;
 }
