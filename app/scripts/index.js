@@ -48,10 +48,20 @@ $(function () {
         allImgNames.push(fileName);
       }
 
+      var fileNameTit;
+
+      if (fileName.indexOf('_') !== -1) {
+        fileNameTit = fileName.split('_')[0];
+      }
+
+      if (fileName.indexOf('-') !== -1) {
+        fileNameTit = fileName.split('-')[0];
+      }
+
       if (categoryImgList.findIndex(function (ele) {
-        return ele === fileName.split('_')[0];
+        return ele === fileNameTit;
       }) === -1) {
-        categoryImgList.push(fileName.split('_')[0]);
+        categoryImgList.push(fileNameTit);
       }
     });
     $('#chooseFile').html('共上传' + allImgNames.length + '个文件');
@@ -86,7 +96,17 @@ $(function () {
 
   function drawToImg(result, name) {
     console.log('name', name);
-    var imgClassName = categoryImgListObj[name.split('_')[0]]; // 设置图片列表UL
+    var nameTit;
+
+    if (name.indexOf('_') !== -1) {
+      nameTit = name.split('_')[0];
+    }
+
+    if (name.indexOf('-') !== -1) {
+      nameTit = name.split('-')[0];
+    }
+
+    var imgClassName = categoryImgListObj[nameTit]; // 设置图片列表UL
 
     var ulEle;
 
@@ -104,7 +124,7 @@ $(function () {
       menuNodeUl = document.getElementsByClassName('node' + imgClassName)[0];
     } else {
       menuTreeDiv = $('<div></div>');
-      menuTreeDiv.html('批次：' + name.split('_')[0]);
+      menuTreeDiv.html('批次：' + nameTit);
       menuTreeDiv.addClass("tree tree" + imgClassName);
       menuNodeUl = $('<ul></ul>');
       menuNodeUl.addClass("node node" + imgClassName);
@@ -246,9 +266,9 @@ $(function () {
       "padding": "4px",
       "border-raduis": '4px'
     });
-  } 
-  
-  // 下一个
+  } // 下一个
+
+
   $(document).on('click', '#next-button', function () {
     var imgIndex = ++window.imgIndex;
     var imgLength = Array.prototype.slice.call($('.imgFlag')).length;
@@ -287,6 +307,21 @@ $(function () {
       $(this).removeClass("ce_ceng_open");
       ul.find(".node").slideUp();
       ul.find(".ce_ceng_close").removeClass("ce_ceng_open");
+    }
+  });
+  $('#menu').on('click', '.cd_title', function () {
+    console.log('点击单带');
+    var ul = $('.cv_fcv');
+    console.log('点击单带', ul.children().length);
+    console.log('点击单带', ul.css('display'));
+    if (!ul.children().length) return;
+
+    if (ul.css("display") == "none") {
+      $(this).addClass("cv_fcv_open");
+      ul.slideDown();
+    } else {
+      ul.slideUp();
+      ul.removeClass("cv_fcv_open");
     }
   });
 });

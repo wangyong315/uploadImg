@@ -296,4 +296,20 @@ $(function(){
       ul.find(".ce_ceng_close").removeClass("ce_ceng_open");
     }
   })
+
+  $('#menu').on('click','.cd_title',function(){
+    console.log('点击单带');
+    var ul = $('.cv_fcv');
+    console.log('点击单带', ul.children().length);
+    console.log('点击单带', ul.css('display'));
+    if (!ul.children().length) return;
+    if(ul.css("display")=="none"){
+      $(this).addClass("cv_fcv_open");
+      ul.slideDown();
+    } else {
+      ul.slideUp();
+      ul.removeClass("cv_fcv_open");
+    }
+  })
+
 });

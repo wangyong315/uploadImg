@@ -189,6 +189,26 @@ ul li{
   cursor: pointer;
 }
 
+.menu .cv_fcv {
+  cursor: pointer;
+}
+
+.cv_fcv_close::before {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  content: "";
+  background: url('./treeview.gif') no-repeat -81px -2px;
+}
+
+.cv_fcv_open::before {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  content: "";
+  background: url('./treeview.gif') no-repeat -66px -25px;
+}
+
 .node ul{
   margin-left:20px;
   max-height: 400px;
