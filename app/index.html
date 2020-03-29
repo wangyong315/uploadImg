@@ -9,6 +9,17 @@
   <script type="text/javascript" src="./orgin/index.js"></script>
 </head>
 <body>
+  <form id="form">
+    <input id="btn_sane_init" type="submit" value="sane_init" />
+    <input id="btn_sane_list_devices" type="submit" value="sane_list_devices" />
+    <input id="btn_sane_open_device" type="submit" value="sane_open_device" />
+    <input id="text_device_name" type="text" size="32">
+    <input id="btn_sane_device_list_options" type="submit" value="sane_device_list_options" />
+    <input id="btn_sane_device_get_parameters" type="submit" value="sane_device_get_paramters" />
+    <input id="btn_sane_device_batch_scan" type="submit" value="sane_device_batch_scan" />
+    <input id="btn_sane_device_close" type="submit" value="sane_device_close" />
+    <input id="btn_sane_exit" type="submit" value="sane_exit" />
+  </form>
   <div id="option">
     <label for="multipleFile" class='uploadBtn'>上传文件</label>
     <span id="chooseFile" class="uploadSpan">请选择文件</span>
@@ -20,6 +31,7 @@
   </div>
   <div id="content">
     <div id="imgWrap"></div>
+    <div id="log"></div>
     <span id="message"></span>
   </div>
   <div id="menu" class="menu">
