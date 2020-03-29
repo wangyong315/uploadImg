@@ -1,7 +1,8 @@
-html, body, ul, li, p, span {
+html, body, ul, li, p, span, form {
   margin: 0;
   padding: 0;
 }
+
 
 .modal-layer {
   position: fixed;
@@ -36,6 +37,27 @@ html, body, ul, li, p, span {
   text-align: center;
 }
 
+#form {
+  padding: 10px;
+  width: 100%;
+  position: fixed;
+  top: 55px;
+  background-color: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+}
+
+#log {
+  background: white;
+  margin: 0;
+  padding: 0.5em 0.5em 0.5em 0.5em;
+  overflow: auto;
+}
+
+#log pre {
+  margin: 0;
+}
+
 button {
   background-color: #fff;
   border-radius: 4px;
@@ -58,7 +80,7 @@ button {
 }
 
 #content {
-  margin-top: 63px;
+  margin-top: 140px;
   margin-left: 150px;
   display: flex;
 }
@@ -178,7 +200,7 @@ ul li{
 /* 属性菜单样式 */
 .menu {
   position: fixed;
-  top: 60px;
+  top: 150px;
   left: 20px;
   max-height: 500px;
   padding: 16px;
