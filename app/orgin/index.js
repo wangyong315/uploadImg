@@ -21,23 +21,19 @@ $(function(){
     categoryImgListObj = {}
   })
 
-  $('#zoomBigImg').click(function () {
-    zoomImg('big')
-  })
+  $('#zoomBigImg').click(() => zoomImg('big'))
 
-  $('#zoomSmallImg').click(function () {
-    zoomImg('small')
-  })
+  $('#zoomSmallImg').click(() => zoomImg('small'))
   
+  // 缩放图片
   function zoomImg(params) {
     const liList = $("li")
     for (let index = 0; index < liList.length; index++) {
       liList[index].setAttribute("class",params);
     }
   }
-
-  // 'http://127.0.0.1:9805/image/tmp2.jpeg?timestamp=454545'
-
+  
+  // 本地上传图片
   $('#multipleFile').change(function (ev) {
     //判断 FileReader 是否被浏览器所支持
     if (!window.FileReader) return alert('您的浏览器暂不支持FileReader，请升级浏览器，或者使用谷歌浏览器');
@@ -50,9 +46,6 @@ $(function(){
       var fileList = ev.target.files;  
       Object.getOwnPropertyNames(fileList).forEach(function(key){
         var fileName = fileList[key].name
-        console.log('fileList[key]',  fileList[key]);
-        console.log('fileName[key]',  fileName);
-        
         if (allImgNames.indexOf(fileName) === -1) {
           printImg(fileList[key])
           allImgNames.push(fileName)
@@ -68,14 +61,8 @@ $(function(){
           categoryImgList.push(fileNameTit)
         }
       });
-  
-      $('#chooseFile').html('共上传' + allImgNames.length + '个文件')
-      for (let index = 0; index < categoryImgList.length; index++) {
-        const element = categoryImgList[index];
-        if (!categoryImgList[element]) {
-          categoryImgListObj[element] = randomStr()
-        }
-      }
+      countImg()
+      unqieClass()
       ev.target.value = ''
     }
 
@@ -83,11 +70,26 @@ $(function(){
       handleFileName(ev)
     }
   }
+  
+  // 显示总共上传多少张图片
+  function countImg() {
+    $('#chooseFile').html('共上传' + allImgNames.length + '个文件')
+  }
 
+  // 生成唯一的class 字符串
+  function unqieClass() {
+    for (let index = 0; index < categoryImgList.length; index++) {
+      const element = categoryImgList[index];
+      if (!categoryImgList[element]) {
+        categoryImgListObj[element] = randomStr()
+      }
+    }
+  }
+
+  // 处理本地socket图片链接
   function handleFileName(url) {
     const urlList = url.split('/')
     var fileName = urlList.find((val) => {
-      console.log('vava', val);
       const itemUpperCase = val.toUpperCase()
       if (
         itemUpperCase.indexOf('BMP') !== -1 
@@ -101,24 +103,15 @@ $(function(){
     })
     var fileNameTit = fileName.split('?');
     fileNameTit = fileNameTit[0].split('.')[0];
-    console.log('imgNameTit', fileNameTit);
-    console.log('imgName', fileName);
-
     if (allImgNames.indexOf(fileName) === -1) {
+      drawToImg(url, fileNameTit, 'urlImg')
       allImgNames.push(fileName)
     }
     if (categoryImgList.findIndex(ele => ele === fileNameTit) === -1) {
       categoryImgList.push(fileNameTit)
     }
-
-    $('#chooseFile').html('共上传' + allImgNames.length + '个文件')
-    for (let index = 0; index < categoryImgList.length; index++) {
-      const element = categoryImgList[index];
-      if (!categoryImgList[element]) {
-        categoryImgListObj[element] = randomStr()
-      }
-    }
-    drawToImg(url, fileName, 'urlImg')
+    countImg()
+    unqieClass()
   }
 
   // 开始打印图片
@@ -137,8 +130,6 @@ $(function(){
 
   // 开始画图
   function drawToImg(result, name, type) {
-    console.log('name', name);
-    
     var nameTit
     if (name.indexOf('_') !== -1) {
       nameTit = name.split('_')[0]
@@ -357,26 +348,20 @@ $(function(){
   })
 
   $('#menu').on('click','.cd_title',function(){
-    console.log('点击单带');
     var ul = $('.cv_fcv');
-    console.log('点击单带', ul.children().length);
-    console.log('点击单带', ul.css('display'));
     if (!ul.children().length) return;
     if(ul.css("display")=="none"){
-      $(this).addClass("cv_fcv_open");
+      // $(this).addClass("cv_fcv_open");
       ul.slideDown();
     } else {
       ul.slideUp();
-      ul.removeClass("cv_fcv_open");
+      // ul.removeClass("cv_fcv_open");
     }
   })
 
   var conn;
   var log = document.getElementById("log");
   var text_device_name = document.getElementById("text_device_name")
-  handleFileList('http://www.hkcd.com/userfiles/20140430/1398832322502137.jpg', 'urlImg')
-  handleFileList('http://www.hkcd.com/userfiles/20140430/1398832322502137.jpg', 'urlImg')
-  handleFileList('http://www.hkcd.com/userfiles/20140430/1398832322502137.jpg', 'urlImg')
   function appendLog(item) {
     var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
     log.appendChild(item);
@@ -493,6 +478,4 @@ $(function(){
     item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
     appendLog(item);
   }
-
-
 });
