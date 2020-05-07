@@ -22,11 +22,11 @@ $(function () {
     categoryImgListObj = {};
   });
   $('#zoomBigImg').click(function () {
-    zoomImg('big');
+    return zoomImg('big');
   });
   $('#zoomSmallImg').click(function () {
-    zoomImg('small');
-  });
+    return zoomImg('small');
+  }); // 缩放图片
 
   function zoomImg(params) {
     var liList = $("li");
@@ -34,38 +34,60 @@ $(function () {
     for (var index = 0; index < liList.length; index++) {
       liList[index].setAttribute("class", params);
     }
-  }
+  } // 本地上传图片
+
 
   $('#multipleFile').change(function (ev) {
     //判断 FileReader 是否被浏览器所支持
-    if (!window.FileReader) return;
-    var fileList = ev.target.files;
-    Object.getOwnPropertyNames(fileList).forEach(function (key) {
-      var fileName = fileList[key].name;
+    if (!window.FileReader) return alert('您的浏览器暂不支持FileReader，请升级浏览器，或者使用谷歌浏览器'); // 处理本地上传之后的图片
 
-      if (allImgNames.indexOf(fileName) === -1) {
-        printImg(fileList[key]);
-        allImgNames.push(fileName);
-      }
+    handleFileList(ev, 'localImg');
+  });
 
-      var fileNameTit;
+  function handleFileList(ev, type) {
+    if (type === 'localImg') {
+      var fileList = ev.target.files;
+      Object.getOwnPropertyNames(fileList).forEach(function (key) {
+        var fileName = fileList[key].name;
 
-      if (fileName.indexOf('_') !== -1) {
-        fileNameTit = fileName.split('_')[0];
-      }
+        if (allImgNames.indexOf(fileName) === -1) {
+          printImg(fileList[key]);
+          allImgNames.push(fileName);
+        }
 
-      if (fileName.indexOf('-') !== -1) {
-        fileNameTit = fileName.split('-')[0];
-      }
+        var fileNameTit;
 
-      if (categoryImgList.findIndex(function (ele) {
-        return ele === fileNameTit;
-      }) === -1) {
-        categoryImgList.push(fileNameTit);
-      }
-    });
+        if (fileName.indexOf('_') !== -1) {
+          fileNameTit = fileName.split('_')[0];
+        }
+
+        if (fileName.indexOf('-') !== -1) {
+          fileNameTit = fileName.split('-')[0];
+        }
+
+        if (categoryImgList.findIndex(function (ele) {
+          return ele === fileNameTit;
+        }) === -1) {
+          categoryImgList.push(fileNameTit);
+        }
+      });
+      countImg();
+      unqieClass();
+      ev.target.value = '';
+    }
+
+    if (type === 'urlImg') {
+      handleFileName(ev);
+    }
+  } // 显示总共上传多少张图片
+
+
+  function countImg() {
     $('#chooseFile').html('共上传' + allImgNames.length + '个文件');
+  } // 生成唯一的class 字符串
 
+
+  function unqieClass() {
     for (var index = 0; index < categoryImgList.length; index++) {
       var element = categoryImgList[index];
 
@@ -73,9 +95,36 @@ $(function () {
         categoryImgListObj[element] = randomStr();
       }
     }
+  } // 处理本地socket图片链接
 
-    ev.target.value = '';
-  });
+
+  function handleFileName(url) {
+    var urlList = url.split('/');
+    var fileName = urlList.find(function (val) {
+      var itemUpperCase = val.toUpperCase();
+
+      if (itemUpperCase.indexOf('BMP') !== -1 || itemUpperCase.indexOf('JPG') !== -1 || itemUpperCase.indexOf('JPEG') !== -1 || itemUpperCase.indexOf('PNG') !== -1 || itemUpperCase.indexOf('GIF') !== -1) {
+        return val;
+      }
+    });
+    var fileNameTit = fileName.split('?');
+    fileNameTit = fileNameTit[0].split('.')[0];
+
+    if (allImgNames.indexOf(fileName) === -1) {
+      drawToImg(url, fileNameTit, 'urlImg');
+      allImgNames.push(fileName);
+    }
+
+    if (categoryImgList.findIndex(function (ele) {
+      return ele === fileNameTit;
+    }) === -1) {
+      categoryImgList.push(fileNameTit);
+    }
+
+    countImg();
+    unqieClass();
+  } // 开始打印图片
+
 
   function printImg(file) {
     if (!file.type.match('image/*')) {
@@ -92,10 +141,10 @@ $(function () {
     reader.onload = function (e) {
       drawToImg(this.result, file.name);
     };
-  }
+  } // 开始画图
 
-  function drawToImg(result, name) {
-    console.log('name', name);
+
+  function drawToImg(result, name, type) {
     var nameTit;
 
     if (name.indexOf('_') !== -1) {
@@ -104,6 +153,10 @@ $(function () {
 
     if (name.indexOf('-') !== -1) {
       nameTit = name.split('-')[0];
+    }
+
+    if (type === 'urlImg') {
+      nameTit = name;
     }
 
     var imgClassName = categoryImgListObj[nameTit]; // 设置图片列表UL
@@ -180,40 +233,35 @@ $(function () {
       showModa(contentHtml);
     }
   }); // 提交所有数据
-
-  $("#submit").click(function () {
-    if (submitFlag) return;
-    submitFlag = true;
-    var formData = new FormData();
-    var files = $('#multipleFile')[0];
-
-    for (var index = 0; index < files.length; index++) {
-      formData.append("file", files[index]);
-    }
-
-    var xhr = new XMLHttpRequest();
-
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState == 4) {
-        if (xhr.status == 200) {
-          $('#message').html('提交成功，3秒后消失').attr('style', 'color: green');
-          setTimeout(function () {
-            $('#message').html('');
-          }, 3000);
-          submitFlag = false;
-        } else {
-          $('#message').html('提交失败，3秒后消失').attr('style', 'color: red');
-          setTimeout(function () {
-            $('#message').html('');
-          }, 3000);
-          submitFlag = false;
-        }
-      }
-    };
-
-    xhr.open('POST', 'http://139.199.18.143:8080/upload');
-    xhr.send(formData);
-  });
+  // $("#submit").click(function() {
+  //   if (submitFlag) return
+  //   submitFlag = true
+  //   var formData = new FormData();
+  //   var files = $('#multipleFile')[0]
+  //   for(var index = 0; index < files.length; index++) {
+  //     formData.append("file", files[index]);
+  //   }
+  //   var xhr = new XMLHttpRequest()
+  //   xhr.onreadystatechange = function () {
+  //     if (xhr.readyState == 4) {
+  //       if (xhr.status == 200) {
+  //         $('#message').html('提交成功，3秒后消失').attr('style', 'color: green')
+  //         setTimeout(() => {
+  //           $('#message').html('')
+  //         }, 3000);
+  //         submitFlag = false
+  //       } else {
+  //         $('#message').html('提交失败，3秒后消失').attr('style', 'color: red')
+  //         setTimeout(() => {
+  //           $('#message').html('')
+  //         }, 3000);
+  //         submitFlag = false
+  //       }
+  //     }
+  //   }
+  //   xhr.open('POST', 'http://139.199.18.143:8080/upload')
+  //   xhr.send(formData)
+  // });
 
   function showModa(contentHtml) {
     var layerEle = document.createElement('div');
@@ -310,18 +358,167 @@ $(function () {
     }
   });
   $('#menu').on('click', '.cd_title', function () {
-    console.log('点击单带');
     var ul = $('.cv_fcv');
-    console.log('点击单带', ul.children().length);
-    console.log('点击单带', ul.css('display'));
     if (!ul.children().length) return;
 
     if (ul.css("display") == "none") {
-      $(this).addClass("cv_fcv_open");
+      // $(this).addClass("cv_fcv_open");
       ul.slideDown();
     } else {
-      ul.slideUp();
-      ul.removeClass("cv_fcv_open");
+      ul.slideUp(); // ul.removeClass("cv_fcv_open");
     }
   });
+  var conn;
+  var log = document.getElementById("log");
+  var text_device_name = document.getElementById("text_device_name");
+
+  function appendLog(item) {
+    var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
+    log.appendChild(item);
+
+    if (doScroll) {
+      log.scrollTop = log.scrollHeight - log.clientHeight;
+    }
+  }
+
+  function appendLogText(text) {
+    var item = document.createElement("div");
+    item.innerHTML = "<b>" + text + "</b>";
+    appendLog(item);
+  }
+
+  function appendImage(url) {
+    var item = document.createElement("img");
+    item.src = url;
+    item.style = "width:30%;";
+    appendLog(item);
+  }
+
+  function clickBase(event, command) {
+    event.preventDefault();
+
+    if (!conn) {
+      appendLogText("no ws!");
+      return;
+    }
+
+    conn.send(JSON.stringify(command));
+  }
+
+  document.getElementById("btn_sane_init").onclick = function (event) {
+    var command = {
+      type: "command",
+      name: "sane_init"
+    };
+    clickBase(event, command);
+  };
+
+  document.getElementById("btn_sane_list_devices").onclick = function (event) {
+    var command = {
+      type: "command",
+      name: "sane_list_devices"
+    };
+    clickBase(event, command);
+  };
+
+  document.getElementById("btn_sane_open_device").onclick = function (event) {
+    var command = {
+      type: "command",
+      name: "sane_open_device",
+      parameters: {
+        deviceName: text_device_name.value
+      }
+    };
+    clickBase(event, command);
+  };
+
+  document.getElementById("btn_sane_device_list_options").onclick = function (event) {
+    var command = {
+      type: "command",
+      name: "sane_device_list_options"
+    };
+    clickBase(event, command);
+  };
+
+  document.getElementById("btn_sane_device_get_parameters").onclick = function (event) {
+    var command = {
+      type: "command",
+      name: "sane_device_get_parameters"
+    };
+    clickBase(event, command);
+  };
+
+  document.getElementById("btn_sane_device_batch_scan").onclick = function (event) {
+    var command = {
+      type: "command",
+      name: "sane_device_batch_scan"
+    };
+    clickBase(event, command);
+  };
+
+  document.getElementById("btn_sane_device_close").onclick = function (event) {
+    var command = {
+      type: "command",
+      name: "sane_device_close"
+    };
+    clickBase(event, command);
+  };
+
+  document.getElementById("btn_sane_exit").onclick = function (event) {
+    var command = {
+      type: "command",
+      name: "sane_exit"
+    };
+    clickBase(event, command);
+  };
+
+  function onSaneEvent(saneEvent) {
+    switch (saneEvent.name) {
+      case "sane_list_devices":
+        switch (saneEvent.result) {
+          case "success":
+            text_device_name.value = saneEvent.devices[0].Name;
+            break;
+        }
+
+        break;
+
+      case "sane_device_image_scanned":
+        console.log(saneEvent.index);
+        var url = "http://" + document.location.host + "/" + saneEvent.imagePath;
+        console.log(url); // 统一调用添加图片函数
+
+        handleFileList(url, 'urlImg'); // appendImage(url)
+
+        break;
+    }
+  }
+
+  if (window["WebSocket"]) {
+    conn = new WebSocket("ws://" + document.location.host + "/ws/sane");
+
+    conn.onopen = function (evt) {
+      appendLogText("hyrh sane ws connected");
+    };
+
+    conn.onclose = function (evt) {
+      appendLogText("Connection closed.");
+    };
+
+    conn.onmessage = function (evt) {
+      console.log(evt);
+      appendLogText(evt.data);
+      var saneMsg = JSON.parse(evt.data);
+
+      switch (saneMsg.type) {
+        case "event":
+          onSaneEvent(saneMsg);
+          break;
+      }
+    };
+  } else {
+    var item = document.createElement("div");
+    item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
+    appendLog(item);
+  }
 });
