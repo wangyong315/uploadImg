@@ -29,14 +29,14 @@ $(function(){
   function zoomImg(params) {
     const liList = $("li")
     for (let index = 0; index < liList.length; index++) {
-      liList[index].setAttribute("class",params);
+      liList[index].setAttribute("class", params);
     }
   }
   
   // 本地上传图片
   $('#multipleFile').change(function (ev) {
     //判断 FileReader 是否被浏览器所支持
-    if (!window.FileReader) return alert('您的浏览器暂不支持FileReader，请升级浏览器，或者使用谷歌浏览器');
+    if (!window.FileReader) return alert('您的浏览器暂不支持FileReader，请升级浏览器，或者使用新版谷歌浏览器');
     // 处理本地上传之后的图片
     handleFileList(ev, 'localImg')
   })
@@ -335,11 +335,13 @@ $(function(){
 
   $('#menu').on('click','.tree',function(e){
     var ul = $(this).next(".node");
-    if(ul.css("display")=="none"){
+    var keyClassName = ul.attr('class') && ul.attr('class').split('node')[2];
+    $("#imgWrap").find(`.${keyClassName}`).show().siblings().hide();
+    if(ul.css("display")=="none") {
       ul.slideDown();
       $(this).addClass("ce_ceng_open");
       ul.find(".ce_ceng_close").removeClass("ce_ceng_open");
-    }else{
+    } else {
       ul.slideUp();
       $(this).removeClass("ce_ceng_open");
       ul.find(".node").slideUp();
@@ -349,13 +351,12 @@ $(function(){
 
   $('#menu').on('click','.cd_title',function(){
     var ul = $('.cv_fcv');
+    $("#imgWrap").children().show();
     if (!ul.children().length) return;
     if(ul.css("display")=="none"){
-      // $(this).addClass("cv_fcv_open");
       ul.slideDown();
     } else {
       ul.slideUp();
-      // ul.removeClass("cv_fcv_open");
     }
   })
 
@@ -376,13 +377,6 @@ $(function(){
     appendLog(item);
   }
             
-  function appendImage(url){
-    var item = document.createElement("img");
-    item.src = url
-    item.style= "width:30%;"
-    appendLog(item)
-  }
-
   function clickBase(event, command) {
     event.preventDefault()
     if (!conn) {
@@ -447,7 +441,6 @@ $(function(){
         console.log(url)
         // 统一调用添加图片函数
         handleFileList(url, 'urlImg')
-        // appendImage(url)
       break
     }
   }
