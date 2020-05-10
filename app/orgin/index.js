@@ -44,6 +44,7 @@ $(function(){
   function handleFileList(ev, type) {
     if (type === 'localImg') {
       var fileList = ev.target.files;  
+      debugger
       Object.getOwnPropertyNames(fileList).forEach(function(key){
         var fileName = fileList[key].name
         if (allImgNames.indexOf(fileName) === -1) {
@@ -80,7 +81,7 @@ $(function(){
   function unqieClass() {
     for (let index = 0; index < categoryImgList.length; index++) {
       const element = categoryImgList[index];
-      if (!categoryImgList[element]) {
+      if (categoryImgList.indexOf(element) == -1) {
         categoryImgListObj[element] = randomStr()
       }
     }
@@ -144,6 +145,7 @@ $(function(){
     var imgClassName = categoryImgListObj[nameTit]
     // 设置图片列表UL
     var ulEle
+    console.log('document.getElementsByClassName(imgClassName)', document.getElementsByClassName(imgClassName));
     if (document.getElementsByClassName(imgClassName)[0]) {
       ulEle = document.getElementsByClassName(imgClassName)[0]
     } else {
@@ -202,6 +204,10 @@ $(function(){
   function randomStr() {
     return Math.random().toString(36).slice(-8)
   }
+
+  $("#imgWrap").bind("contextmenu", function(){
+    return false;
+  })
 
   $('#imgWrap').click(function (event) {
     event = event || window.event;
