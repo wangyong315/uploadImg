@@ -44,7 +44,6 @@ $(function(){
   function handleFileList(ev, type) {
     if (type === 'localImg') {
       var fileList = ev.target.files;  
-      debugger
       Object.getOwnPropertyNames(fileList).forEach(function(key){
         var fileName = fileList[key].name
         if (allImgNames.indexOf(fileName) === -1) {
@@ -81,7 +80,7 @@ $(function(){
   function unqieClass() {
     for (let index = 0; index < categoryImgList.length; index++) {
       const element = categoryImgList[index];
-      if (categoryImgList.indexOf(element) == -1) {
+      if (!categoryImgListObj[element]) {
         categoryImgListObj[element] = randomStr()
       }
     }
