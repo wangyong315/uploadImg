@@ -1,23 +1,22 @@
-$(function(){
-  var imgWrapEle = $('#imgWrap')
-  var multipleFileEle = $('#multipleFile')
+$(function() {
+  function randomStr() { // 生成唯一字符串
+    return Math.random().toString(36).slice(-8)
+  }
   // 所有图片数据
   var allImgNames = []
   // 所有图片分组
   var categoryImgList = []
   // 图片分组 && className
   var categoryImgListObj = {}
-  var submitFlag = false
 
   // 清空所有图片
   $('#clear').click(function () {
     $('#imgWrap').html('')
     $('.cv_fcv').html('')
-    multipleFileEle.value = ''
+    $('#multipleFile').value = ''
     $('#chooseFile').html('请上传文件')
     allImgNames = []
     categoryImgList = []
-    uniqueCategoryImgList = []
     categoryImgListObj = {}
   })
 
@@ -32,45 +31,7 @@ $(function(){
       liList[index].setAttribute("class", params);
     }
   }
-  
-  // 本地上传图片
-  $('#multipleFile').change(function (ev) {
-    //判断 FileReader 是否被浏览器所支持
-    if (!window.FileReader) return alert('您的浏览器暂不支持FileReader，请升级浏览器，或者使用新版谷歌浏览器');
-    // 处理本地上传之后的图片
-    handleFileList(ev, 'localImg')
-  })
 
-  function handleFileList(ev, type) {
-    if (type === 'localImg') {
-      var fileList = ev.target.files;  
-      Object.getOwnPropertyNames(fileList).forEach(function(key){
-        var fileName = fileList[key].name
-        if (allImgNames.indexOf(fileName) === -1) {
-          printImg(fileList[key])
-          allImgNames.push(fileName)
-        }
-        var fileNameTit
-        if (fileName.indexOf('_') !== -1) {
-          fileNameTit = fileName.split('_')[0]
-        }
-        if (fileName.indexOf('-') !== -1) {
-          fileNameTit = fileName.split('-')[0]
-        }
-        if (categoryImgList.findIndex(ele => ele === fileNameTit) === -1) {
-          categoryImgList.push(fileNameTit)
-        }
-      });
-      countImg()
-      unqieClass()
-      ev.target.value = ''
-    }
-
-    if (type === 'urlImg') {
-      handleFileName(ev)
-    }
-  }
-  
   // 显示总共上传多少张图片
   function countImg() {
     $('#chooseFile').html('共上传' + allImgNames.length + '个文件')
@@ -85,33 +46,37 @@ $(function(){
       }
     }
   }
+  
+  // 本地上传图片
+  $('#multipleFile').change(function (ev) {
+    //判断 FileReader 是否被浏览器所支持
+    if (!window.FileReader) return alert('您的浏览器暂不支持FileReader，请升级浏览器，或者使用新版谷歌浏览器');
+    // 处理本地上传之后的图片
+    handleFileList(ev)
+  })
 
-  // 处理本地socket图片链接
-  function handleFileName(url) {
-    const urlList = url.split('/')
-    var fileName = urlList.find((val) => {
-      const itemUpperCase = val.toUpperCase()
-      if (
-        itemUpperCase.indexOf('BMP') !== -1 
-        || itemUpperCase.indexOf('JPG') !== -1
-        || itemUpperCase.indexOf('JPEG') !== -1
-        || itemUpperCase.indexOf('PNG') !== -1
-        || itemUpperCase.indexOf('GIF') !== -1
-      ) {
-        return val
-      }      
-    })
-    var fileNameTit = fileName.split('?');
-    fileNameTit = fileNameTit[0].split('.')[0];
-    if (allImgNames.indexOf(fileName) === -1) {
-      drawToImg(url, fileNameTit, 'urlImg')
-      allImgNames.push(fileName)
-    }
-    if (categoryImgList.findIndex(ele => ele === fileNameTit) === -1) {
-      categoryImgList.push(fileNameTit)
-    }
+  function handleFileList(ev) {
+    var fileList = ev.target.files;  
+    Object.getOwnPropertyNames(fileList).forEach(function(key){
+      var fileName = fileList[key].name
+      if (allImgNames.indexOf(fileName) === -1) {
+        printImg(fileList[key])
+        allImgNames.push(fileName)
+      }
+      var fileNameTit
+      if (fileName.indexOf('_') !== -1) {
+        fileNameTit = fileName.split('_')[0]
+      }
+      if (fileName.indexOf('-') !== -1) {
+        fileNameTit = fileName.split('-')[0]
+      }
+      if (categoryImgList.findIndex(ele => ele === fileNameTit) === -1) {
+        categoryImgList.push(fileNameTit)
+      }
+    });
     countImg()
     unqieClass()
+    ev.target.value = ''
   }
 
   // 开始打印图片
@@ -126,6 +91,27 @@ $(function(){
     reader.onload = function(e) {
       drawToImg(this.result, file.name);
     }
+  }
+ 
+  // 处理本地socket图片链接
+  function handleFileName(url) {
+    const urlList = url.split('/')
+    var fileName = urlList.find((val) => {
+      const itemUpperCase = val.toUpperCase()
+      const imgCate = ['BMP', 'JPG', 'JPEG', 'PNG', 'GIF']
+      if (imgCate.includes(itemUpperCase)) return val
+    })
+    var fileNameTit = fileName.split('?');
+    fileNameTit = fileNameTit[0].split('.')[0];
+    if (allImgNames.indexOf(fileName) === -1) {
+      drawToImg(url, fileNameTit, 'urlImg')
+      allImgNames.push(fileName)
+    }
+    if (categoryImgList.findIndex(ele => ele === fileNameTit) === -1) {
+      categoryImgList.push(fileNameTit)
+    }
+    countImg()
+    unqieClass()
   }
 
   // 开始画图
@@ -144,18 +130,18 @@ $(function(){
     var imgClassName = categoryImgListObj[nameTit]
     // 设置图片列表UL
     var ulEle
-    console.log('document.getElementsByClassName(imgClassName)', document.getElementsByClassName(imgClassName));
-    if (document.getElementsByClassName(imgClassName)[0]) {
-      ulEle = document.getElementsByClassName(imgClassName)[0]
+    if ($(`.${imgClassName}`)[0]) {
+      ulEle = $($(`.${imgClassName}`)[0])
     } else {
-      ulEle = document.createElement('ul')
+      ulEle = $('<ul></ul>')
     }
+    console.log(ulEle);
 
     var menuTreeDiv
     var menuNodeUl
-    if (document.getElementsByClassName('tree' + imgClassName)[0]) {
-      menuTreeDiv = document.getElementsByClassName('tree' + imgClassName)[0]
-      menuNodeUl = document.getElementsByClassName('node' + imgClassName)[0]
+    if ($(`.tree${imgClassName}`)[0]) {
+      menuTreeDiv = $($(`.tree${imgClassName}`)[0])
+      menuNodeUl = $($(`.node${imgClassName}`)[0])
     } else {
       menuTreeDiv = $('<div></div>')
       menuTreeDiv.html('批次：' + nameTit)
@@ -166,46 +152,49 @@ $(function(){
       $('.cv_fcv').append(menuNodeUl)
     }
 
-    var menuLi = document.createElement('li')
-    menuLi.setAttribute('class', 'node-item')
+    var menuLi = $('<li class="node-item"></li>')
 
-    var menuChildDiv = document.createElement('div')
-    menuChildDiv.setAttribute('class', 'tree')
-    menuChildDiv.innerHTML = name
-
-    menuLi.appendChild(menuChildDiv)
+    var menuChildDiv = $('<div class="tree"></div>')
+    menuChildDiv.html(name)
+    menuLi.append(menuChildDiv)
     
     menuNodeUl.append(menuLi)
-    if (!document.getElementsByClassName(imgClassName+'title')[0]) {
-      var divEle = document.createElement('div')
-      divEle.setAttribute('class', imgClassName + 'title')
-      divEle.setAttribute('style', "padding-bottom: 16px")
-      divEle.innerHTML = '批次：' + name.split('_')[0]
-      ulEle.appendChild(divEle)
+    if (!$(`${imgClassName}title`)[0]) {
+      var divEle = $('<div></div>')
+      divEle.addClass(`${imgClassName}title`)
+      divEle.css("padding-bottom: 16px")
+      divEle.html('批次：' + name.split('_')[0])
+      ulEle.append(divEle)
     }
    
-    var liEle = document.createElement('li')
-    var imgEle = document.createElement('img')
-    var spanEle = document.createElement('p')
-    ulEle.setAttribute('class', imgClassName)
-    liEle.setAttribute('class', 'small')
-    liEle.setAttribute('draggable', 'true')
-    imgEle.setAttribute('class', 'imgFlag')
-    imgEle.setAttribute('ondragstart', 'return false;')
-    spanEle.setAttribute("style", "white-space: nowrap;width: 200px;overflow: hidden;text-overflow: ellipsis;font-size: 12px; height: 20px");
-    imgEle.src = result
-    spanEle.innerHTML = name
-    ulEle.appendChild(liEle)
-    liEle.appendChild(imgEle)
-    liEle.appendChild(spanEle)
-    imgWrapEle.append(ulEle)
+    var liEle = $('<li></li>')
+    var imgEle = $('<img />')
+    var spanEle = $('<p></p>')
+    ulEle.addClass(imgClassName)
+    liEle.addClass('small')
+    liEle.attr('draggable', 'true')
+    imgEle.addClass('imgFlag')
+    imgEle.attr({
+      ondragstart: 'return false;',
+      src: result
+    })
+    spanEle.css({
+      'white-space': 'nowrap',
+      width: '200px',
+      overflow: 'hidden',
+      'text-overflow': 'ellipsis',
+      'font-size': '12px',
+      height: '20px'
+    });
+    spanEle.html(name)
+    ulEle.append(liEle)
+    liEle.append(imgEle)
+    liEle.append(spanEle)
+    $('#imgWrap').append(ulEle)
     initMenu()
   }
 
-  function randomStr() {
-    return Math.random().toString(36).slice(-8)
-  }
-
+ 
   $(document).bind("contextmenu", function(){
     return false;
   })
@@ -225,25 +214,15 @@ $(function(){
       left: ev.pageX,
     })
     $(this).append(menu);
-    // $(this).append($('p'))
-    // $(this).remove()
   })
 
   $("#imgWrap").on("contextmenu", function(ev) {
-    console.log('evev', ev);
-    
-    // $('#imgWrap ul li').css('border', 'none')
   })
 
   $("#imgWrap").on("click", '#deleteImgItem', function(ev) {
     console.log('evev', ev);
     console.log('evev', ev);
-    // $(this).append($('p'))
-    // $(this).remove()
   })
-
-
-
 
   $('#imgWrap').click(function (event) {
     event = event || window.event;
@@ -268,52 +247,24 @@ $(function(){
     }
   })
 
-  // 提交所有数据
-  // $("#submit").click(function() {
-  //   if (submitFlag) return
-  //   submitFlag = true
-  //   var formData = new FormData();
-  //   var files = $('#multipleFile')[0]
-  //   for(var index = 0; index < files.length; index++) {
-  //     formData.append("file", files[index]);
-  //   }
-  //   var xhr = new XMLHttpRequest()
-  //   xhr.onreadystatechange = function () {
-  //     if (xhr.readyState == 4) {
-  //       if (xhr.status == 200) {
-  //         $('#message').html('提交成功，3秒后消失').attr('style', 'color: green')
-  //         setTimeout(() => {
-  //           $('#message').html('')
-  //         }, 3000);
-  //         submitFlag = false
-  //       } else {
-  //         $('#message').html('提交失败，3秒后消失').attr('style', 'color: red')
-  //         setTimeout(() => {
-  //           $('#message').html('')
-  //         }, 3000);
-  //         submitFlag = false
-  //       }
-  //     }
-  //   }
-  //   xhr.open('POST', 'http://139.199.18.143:8080/upload')
-  //   xhr.send(formData)
-  // });
-
+  // 展示弹窗
   function showModa(contentHtml) {
-    const layerEle = document.createElement('div');
-    layerEle.setAttribute('class', 'modal-layer');
-    const contentContainerEle = document.createElement('div');
-    contentContainerEle.setAttribute('class', 'modal-dialog-container');
-    contentContainerEle.innerHTML = contentHtml;
-    layerEle.appendChild(contentContainerEle);
-    document.body.appendChild(layerEle);
-    $('.modal-img').attr({ height: window.innerHeight*0.9 });
-    $('.img-title').attr('style', `left:  calc(${ $('#modal-dialog-content').width()*0.5 - $('.img-title').width()*0.5 }px)`);
+    const layerEle = $('<div class="modal-layer"></div>');
+    const contentConEle = $('<div class="modal-dialog-container"></div>');
+    contentConEle.html(contentHtml);
+    layerEle.append(contentConEle);
+    $('body').append(layerEle);
+    $('.modal-img').css({ height: window.innerHeight*0.9 });
+    $('.img-title').css({
+       left: `calc(${ $('#modal-dialog-content').width()*0.5 - $('.img-title').width()*0.5 }px)`
+    });
   }
+
   // 关闭
   $(document).on('click','.close-button',function(){
     $('.modal-layer').remove()
   });
+  
   // 上一个
   $(document).on('click','#prev-button',function(){
     var imgIndex = -- window.imgIndex
@@ -482,7 +433,7 @@ $(function(){
         var url ="http://" + document.location.host +"/"+ saneEvent.imagePath
         console.log(url)
         // 统一调用添加图片函数
-        handleFileList(url, 'urlImg')
+        handleFileName(url)
       break
     }
   }
