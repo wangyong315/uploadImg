@@ -189,7 +189,9 @@ $(function(){
     var spanEle = document.createElement('p')
     ulEle.setAttribute('class', imgClassName)
     liEle.setAttribute('class', 'small')
+    liEle.setAttribute('draggable', 'true')
     imgEle.setAttribute('class', 'imgFlag')
+    imgEle.setAttribute('ondragstart', 'return false;')
     spanEle.setAttribute("style", "white-space: nowrap;width: 200px;overflow: hidden;text-overflow: ellipsis;font-size: 12px; height: 20px");
     imgEle.src = result
     spanEle.innerHTML = name
@@ -204,9 +206,44 @@ $(function(){
     return Math.random().toString(36).slice(-8)
   }
 
-  $("#imgWrap").bind("contextmenu", function(){
+  $(document).bind("contextmenu", function(){
     return false;
   })
+
+  $("#imgWrap").on("contextmenu", 'li', function(ev) {
+    console.log('evev', ev);
+    $('#imgWrap ul li').css('border', 'none')
+    $(this).css('border', '1px solid #000')
+    if($('#deleteImgItem')) $('#deleteImgItem').remove()
+    const menu = $("<span id='deleteImgItem'>删除此图片</span>")
+    menu.css({
+      background: '#fff',
+      border: '1px solid #000',
+      padding: '4px 8px',
+      position: 'absolute',
+      top: ev.pageY,
+      left: ev.pageX,
+    })
+    $(this).append(menu);
+    // $(this).append($('p'))
+    // $(this).remove()
+  })
+
+  $("#imgWrap").on("contextmenu", function(ev) {
+    console.log('evev', ev);
+    
+    // $('#imgWrap ul li').css('border', 'none')
+  })
+
+  $("#imgWrap").on("click", '#deleteImgItem', function(ev) {
+    console.log('evev', ev);
+    console.log('evev', ev);
+    // $(this).append($('p'))
+    // $(this).remove()
+  })
+
+
+
 
   $('#imgWrap').click(function (event) {
     event = event || window.event;
@@ -230,7 +267,7 @@ $(function(){
       showModa(contentHtml)
     }
   })
-  
+
   // 提交所有数据
   // $("#submit").click(function() {
   //   if (submitFlag) return

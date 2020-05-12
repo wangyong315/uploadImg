@@ -48,6 +48,7 @@ html, body, ul, li, p, span, form {
 }
 
 #log {
+  width: 200px;
   background: white;
   margin: 0;
   padding: 0.5em 0.5em 0.5em 0.5em;
