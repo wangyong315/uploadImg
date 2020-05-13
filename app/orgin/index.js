@@ -28,7 +28,7 @@ $(function() {
   function zoomImg(params) {
     const liList = $("li")
     for (let index = 0; index < liList.length; index++) {
-      liList[index].setAttribute("class", params);
+      $(liList[index]).removeClass('big small').addClass(params);
     }
   }
 
@@ -130,38 +130,17 @@ $(function() {
     var imgClassName = categoryImgListObj[nameTit]
     // 设置图片列表UL
     var ulEle
-    if ($(`.${imgClassName}`)[0]) {
+    if ($('.activeImgWrap')[0]) {
+      ulEle = $($('.activeImgWrap')[0])
+    } else if ($(`.${imgClassName}`)[0]) {
       ulEle = $($(`.${imgClassName}`)[0])
     } else {
       ulEle = $('<ul></ul>')
     }
-    console.log(ulEle);
-
-    var menuTreeDiv
-    var menuNodeUl
-    if ($(`.tree${imgClassName}`)[0]) {
-      menuTreeDiv = $($(`.tree${imgClassName}`)[0])
-      menuNodeUl = $($(`.node${imgClassName}`)[0])
-    } else {
-      menuTreeDiv = $('<div></div>')
-      menuTreeDiv.html('批次：' + nameTit)
-      menuTreeDiv.addClass(`tree tree${imgClassName}`)
-      menuNodeUl = $('<ul></ul>')
-      menuNodeUl.addClass(`node node${imgClassName}`)
-      $('.cv_fcv').append(menuTreeDiv)
-      $('.cv_fcv').append(menuNodeUl)
-    }
-
-    var menuLi = $('<li class="node-item"></li>')
-
-    var menuChildDiv = $('<div class="tree"></div>')
-    menuChildDiv.html(name)
-    menuLi.append(menuChildDiv)
-    
-    menuNodeUl.append(menuLi)
-    if (!$(`${imgClassName}title`)[0]) {
+   
+    if (!$(`.title${imgClassName}`)[0] && !$('.activeImgWrap')[0]) {
       var divEle = $('<div></div>')
-      divEle.addClass(`${imgClassName}title`)
+      divEle.addClass(`title${imgClassName}`)
       divEle.css("padding-bottom: 16px")
       divEle.html('批次：' + name.split('_')[0])
       ulEle.append(divEle)
@@ -191,10 +170,35 @@ $(function() {
     liEle.append(imgEle)
     liEle.append(spanEle)
     $('#imgWrap').append(ulEle)
+
+    // 菜单的逻辑
+    var menuTreeDiv
+    var menuNodeUl
+    if ($('.activeTree')[0]) {
+      menuNodeUl = $($('.activeTree')[0])
+      menuNodeUl = $($('.activeNode')[0])
+    } else if ($(`.tree${imgClassName}`)[0]) {
+      menuTreeDiv = $($(`.tree${imgClassName}`)[0])
+      menuNodeUl = $($(`.node${imgClassName}`)[0])
+    } else {
+      menuTreeDiv = $('<div></div>')
+      menuTreeDiv.html('批次：' + nameTit)
+      menuTreeDiv.addClass(`tree tree${imgClassName}`)
+      menuNodeUl = $('<ul></ul>')
+      menuNodeUl.addClass(`node node${imgClassName}`)
+      $('.cv_fcv').append(menuTreeDiv)
+      $('.cv_fcv').append(menuNodeUl)
+    }
+ 
+    var menuLi = $('<li class="node-item"></li>')
+    var menuChildDiv = $('<div class="tree"></div>')
+    menuChildDiv.html(name)
+    menuLi.append(menuChildDiv)
+    menuNodeUl.append(menuLi)
+ 
     initMenu()
   }
 
- 
   $(document).bind("contextmenu", function(){
     return false;
   })
@@ -269,7 +273,7 @@ $(function() {
   $(document).on('click','#prev-button',function(){
     var imgIndex = -- window.imgIndex
     if (imgIndex >= 0) {
-      $('.img-title').html(allImgNames [imgIndex])
+      $('.img-title').html(allImgNames[imgIndex])
       $('.img-title').attr('style', `left:  calc(${ $('#modal-dialog-content').width()*0.5 - $('.img-title').width()*0.5 }px)`);
       var imgSrc = Array.prototype.slice.call($('.imgFlag'))[imgIndex].currentSrc
       $('#modal-img').attr('src', imgSrc)
@@ -326,24 +330,29 @@ $(function() {
     });
   }
 
-  $('#menu').on('click','.tree',function(e){
+  $('#menu').on('click', '.tree', function() {
     var ul = $(this).next(".node");
     var keyClassName = ul.attr('class') && ul.attr('class').split('node')[2];
     $("#imgWrap").find(`.${keyClassName}`).show().siblings().hide();
-    if(ul.css("display")=="none") {
+    console.log('this', $(this));
+    $(this).addClass('activeTree').siblings('.tree').removeClass('activeTree')
+    ul.addClass('activeNode').siblings('.node').removeClass('activeNode')
+    $("#imgWrap").find(`.${keyClassName}`).addClass('activeImgWrap').siblings('ul').removeClass('activeImgWrap')
+    if(ul.css("display") == "none") {
       ul.slideDown();
-      $(this).addClass("ce_ceng_open");
-      ul.find(".ce_ceng_close").removeClass("ce_ceng_open");
+      $(this).removeClass('ce_ceng_close').addClass("ce_ceng_open")
     } else {
       ul.slideUp();
-      $(this).removeClass("ce_ceng_open");
+      $(this).removeClass("ce_ceng_open").addClass("ce_ceng_close");
       ul.find(".node").slideUp();
-      ul.find(".ce_ceng_close").removeClass("ce_ceng_open");
     }
   })
 
   $('#menu').on('click','.cd_title',function(){
     var ul = $('.cv_fcv');
+    $('.activeTree').removeClass('activeTree')
+    $('.activeNode').removeClass('activeNode')
+    $('.activeImgWrap').removeClass('activeImgWrap')
     $("#imgWrap").children().show();
     if (!ul.children().length) return;
     if(ul.css("display")=="none"){

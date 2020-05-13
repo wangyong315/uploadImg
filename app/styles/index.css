@@ -3,7 +3,6 @@ html, body, ul, li, p, span, form {
   padding: 0;
 }
 
-
 .modal-layer {
   position: fixed;
   left: 0;
@@ -146,13 +145,8 @@ ul li{
   right: 8px;
   width: 24px;
   height: 24px;
-  border: 2px solid #bbb;
-  border-radius: 50%;
-}
-
-.close-button::before {
-  content: "\2716";
-  color: #bbb;
+  background: url('./close.png') no-repeat center;
+  background-size: 100% 100%;
 }
 
 #prev-button {
@@ -199,7 +193,7 @@ ul li{
   content: "";
 }
 
-#next-button:hover, #next-button:hover {
+#next-button:hover, #prev-button:hover {
   background: #1890ff;
 }
 
