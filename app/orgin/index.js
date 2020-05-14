@@ -1,20 +1,18 @@
 $(function() {
-  function randomStr() { // 生成唯一字符串
-    return Math.random().toString(36).slice(-8)
-  }
-  // 所有图片数据
-  var allImgNames = []
-  // 图片分组 && className
-  var categoryImgListObj = {}
 
-  // 清空所有图片
-  $('#clear').click(function () {
+  const randomStr = () => Math.random().toString(36).slice(-8) // 生成唯一字符串
+  
+  var allImgNames = [] // 所有图片数据
+  
+  var cateImgObj = {} // 图片分组 && className
+
+  $('#clear').click(function () { // 清空所有图片
     $('#imgWrap').html('')
     $('.cv_fcv').html('')
     $('#multipleFile').value = ''
     $('#chooseFile').html('请上传文件')
     allImgNames = []
-    categoryImgListObj = {}
+    cateImgObj = {}
   })
 
   $('#zoomBigImg').click(() => zoomImg('big'))
@@ -39,10 +37,10 @@ $(function() {
     handleFileList(ev)
   })
 
+  // 生成图片类型 字符串
   function calcUniquClass(fileNameTit) {
-    categoryImgListObj[fileNameTit] = ''
-    if (!categoryImgListObj[fileNameTit]) {
-      categoryImgListObj[fileNameTit] = randomStr()
+    if (!cateImgObj[fileNameTit] && !$('.activeImgWrap')[0]) {
+      cateImgObj[fileNameTit] = randomStr()
     }
   }
 
@@ -50,11 +48,12 @@ $(function() {
     var fileList = ev.target.files;  
     Object.getOwnPropertyNames(fileList).forEach(function(key) {
       var fileName = fileList[key].name
+      // 名称相同的不能再次上传
       if (allImgNames.indexOf(fileName) === -1) {
         printImg(fileList[key])
         allImgNames.push(fileName)
       }
-      var fileNameTit
+      var fileNameTit // 分类名称
       if (fileName.indexOf('_') !== -1) {
         fileNameTit = fileName.split('_')[0]
       }
@@ -112,7 +111,7 @@ $(function() {
       nameTit = name
     }
     
-    var imgClassName = categoryImgListObj[nameTit]
+    var imgClassName = cateImgObj[nameTit]
     // 设置图片列表UL
     var ulEle
     if ($('.activeImgWrap')[0]) {
@@ -181,10 +180,6 @@ $(function() {
     menuChildDiv.html(name)
     menuLi.append(menuChildDiv)
     menuNodeUl.append(menuLi)
-
-    console.log('allImgNames', allImgNames);
-    console.log('categoryImgListObj', categoryImgListObj);
-    
     initMenu()
   }
 
