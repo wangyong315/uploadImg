@@ -6,35 +6,44 @@ $(function() {
   
   var cateImgObj = {} // 图片分组 && className
 
-  $('#clear').click(function () { // 清空所有图片
+  function clearAllData(params) { // 清空所有图片
     $('#imgWrap').html('')
     $('.cv_fcv').html('')
     $('#multipleFile').value = ''
     $('#chooseFile').html('请上传文件')
     allImgNames = []
     cateImgObj = {}
-  })
+  }
+
+  $('#clear').click(clearAllData)
 
   $('#zoomBigImg').click(() => zoomImg('big'))
-
   $('#zoomSmallImg').click(() => zoomImg('small'))
   
   // 缩放图片
   function zoomImg(params) {
     $("li").removeClass('big small').addClass(params);
   }
-
-  // 显示总共上传多少张图片
-  function countImg() {
+  
+  function countImg() { // 显示总共上传多少张图片
     $('#chooseFile').html('共上传' + allImgNames.length + '个文件')
   }
 
-  // 本地上传图片
-  $('#multipleFile').change(function (ev) {
+  function genNameTit(fileName) {
+    var fileNameTit
+    if (fileName.indexOf('_') !== -1) {
+      fileNameTit = fileName.split('_')[0]
+    }
+    if (fileName.indexOf('-') !== -1) {
+      fileNameTit = fileName.split('-')[0]
+    }
+    return fileNameTit
+  }
+
+  $('#multipleFile').change(function (ev) { // 本地上传图片
     //判断 FileReader 是否被浏览器所支持
     if (!window.FileReader) return alert('您的浏览器暂不支持FileReader，请升级浏览器，或者使用新版谷歌浏览器');
-    // 处理本地上传之后的图片
-    handleFileList(ev)
+    handleFileList(ev) // 处理本地上传之后的图片
   })
 
   // 生成图片类型 字符串
@@ -48,26 +57,18 @@ $(function() {
     var fileList = ev.target.files;  
     Object.getOwnPropertyNames(fileList).forEach(function(key) {
       var fileName = fileList[key].name
-      // 名称相同的不能再次上传
-      if (allImgNames.indexOf(fileName) === -1) {
+      if (allImgNames.indexOf(fileName) === -1) { // 名称相同的不能再次上传
         printImg(fileList[key])
         allImgNames.push(fileName)
       }
-      var fileNameTit // 分类名称
-      if (fileName.indexOf('_') !== -1) {
-        fileNameTit = fileName.split('_')[0]
-      }
-      if (fileName.indexOf('-') !== -1) {
-        fileNameTit = fileName.split('-')[0]
-      }
+      var fileNameTit = genNameTit(fileName) // 分类名称
       calcUniquClass(fileNameTit)
     });
     countImg()
     ev.target.value = ''
   }
 
-  // 开始打印图片
-  function printImg(file) {
+  function printImg(file) { // 开始打印图片
     if(!file.type.match('image/*')){
       alert('上传的图片必须是png,gif,jpg格式！');
       ev.target.value = ""; //显示文件的值赋值为空
@@ -80,8 +81,7 @@ $(function() {
     }
   }
  
-  // 处理本地socket图片链接
-  function handleFileName(url) {
+  function handleFileName(url) { // 处理本地socket图片链接
     const urlList = url.split('/')
     var fileName = urlList.find((val) => {
       const itemUpperCase = val.toUpperCase()
@@ -100,20 +100,13 @@ $(function() {
 
   // 开始画图
   function drawToImg(result, name, type) {
-    var nameTit
-    if (name.indexOf('_') !== -1) {
-      nameTit = name.split('_')[0]
-    }
-    if (name.indexOf('-') !== -1) {
-      nameTit = name.split('-')[0]
-    }
+    var nameTit = genNameTit(name)
     if (type === 'urlImg') {
       nameTit = name
     }
     
     var imgClassName = cateImgObj[nameTit]
-    // 设置图片列表UL
-    var ulEle
+    var ulEle // 设置图片列表UL
     if ($('.activeImgWrap')[0]) {
       ulEle = $($('.activeImgWrap')[0])
     } else if ($(`.${imgClassName}`)[0]) {
@@ -130,7 +123,7 @@ $(function() {
       ulEle.append(divEle)
     }
    
-    var liEle = $('<li class="small"></li>')
+    var liEle = $(`<li class="small" data-keyname=${imgClassName}></li>`)
     var imgEle = $('<img class="imgFlag" />')
     var spanEle = $('<p></p>')
     ulEle.addClass(imgClassName)
@@ -140,7 +133,7 @@ $(function() {
     })
     imgEle.attr({
       ondragstart: 'return false;',
-      src: result
+      src: result,
     })
     spanEle.css({
       'white-space': 'nowrap',
@@ -156,11 +149,10 @@ $(function() {
     liEle.append(spanEle)
     $('#imgWrap').append(ulEle)
 
-    // 菜单的逻辑
-    var menuTreeDiv
+    var menuTreeDiv // 菜单的逻辑
     var menuNodeUl
     if ($('.activeTree')[0]) {
-      menuNodeUl = $($('.activeTree')[0])
+      menuTreeDiv = $($('.activeTree')[0])
       menuNodeUl = $($('.activeNode')[0])
     } else if ($(`.tree${imgClassName}`)[0]) {
       menuTreeDiv = $($(`.tree${imgClassName}`)[0])
@@ -176,9 +168,7 @@ $(function() {
     }
  
     var menuLi = $('<li class="node-item"></li>')
-    var menuChildDiv = $('<div class="tree"></div>')
-    menuChildDiv.html(name)
-    menuLi.append(menuChildDiv)
+    menuLi.html(name)
     menuNodeUl.append(menuLi)
     initMenu()
   }
@@ -191,7 +181,7 @@ $(function() {
       background: '',
       opacity: '',
     })
-    const menu = $("<span id='deleteImgItem'>删除此图片</span>")
+    const menu = $(`<span id='deleteImgItem' data-keyname=${$(this).data('keyname')}>删除此图片</span>`)
     menu.css({
       position: 'absolute',
       bottom: 0,
@@ -213,8 +203,20 @@ $(function() {
     if($('#deleteImgItem')) $('#deleteImgItem').remove()
   })
 
-  $(document).on("click", '#deleteImgItem', function(ev) {
+  $(document).on("click", '#deleteImgItem', function() {
+    const keyName =  $(this).data('keyname')
+    const imgName = $(this).siblings('p').html()
+    $(`.node${keyName} li:contains(${imgName})`).remove() // 删除菜单中item
     $(this).parent().remove() //删除#imgWrap的li img
+    const index = allImgNames.indexOf(imgName)
+    allImgNames.splice(index, 1)
+    countImg()
+    if (!allImgNames.length) clearAllData()
+    if (!$(`.${keyName} li`).length) {
+      $(`.${keyName}`).remove()
+      $(`.tree${keyName}`).remove()
+      $(`.node${keyName}`).remove()
+    }
   })
 
   $('#imgWrap').click(function (event) {
@@ -240,8 +242,7 @@ $(function() {
     }
   })
 
-  // 展示弹窗
-  function showModa(contentHtml) {
+  function showModa(contentHtml) { // 展示弹窗
     const layerEle = $('<div class="modal-layer"></div>');
     const contentConEle = $('<div class="modal-dialog-container"></div>');
     contentConEle.html(contentHtml);
@@ -252,13 +253,11 @@ $(function() {
     });
   }
 
-  // 关闭
-  $(document).on('click','.close-button',function(){
+  $(document).on('click','.close-button', function() { // 关闭
     $('.modal-layer').remove()
   });
-  
-  // 上一个
-  $(document).on('click','#prev-button',function(){
+
+  $(document).on('click', '#prev-button', function() { // 上一个
     var imgIndex = -- window.imgIndex
     if (imgIndex >= 0) {
       $('.img-title').html(allImgNames[imgIndex])
@@ -294,8 +293,7 @@ $(function() {
     });
   }
 
-  // 下一个
-  $(document).on('click','#next-button',function(){
+  $(document).on('click','#next-button',function(){ // 下一个
     var imgIndex = ++ window.imgIndex
     var imgLength =  Array.prototype.slice.call($('.imgFlag')).length
     if (imgIndex < imgLength) {
@@ -314,7 +312,7 @@ $(function() {
   
   // 菜单显示逻辑
   function initMenu() {
-    $(".tree").each(function(index, element) {
+    $(".tree").each(function() {
       if($(this).next(".node").length>0){
         $(this).addClass("ce_ceng_close");
       }

@@ -1,25 +1,23 @@
 "use strict";
 
 $(function () {
-  var imgWrapEle = $('#imgWrap');
-  var multipleFileEle = $('#multipleFile'); // 所有图片数据
+  var randomStr = function randomStr() {
+    return Math.random().toString(36).slice(-8);
+  }; // 生成唯一字符串
 
-  var allImgNames = []; // 所有图片分组
 
-  var categoryImgList = []; // 图片分组 && className
+  var allImgNames = []; // 所有图片数据
 
-  var categoryImgListObj = {};
-  var submitFlag = false; // 清空所有图片
+  var cateImgObj = {}; // 图片分组 && className
 
   $('#clear').click(function () {
+    // 清空所有图片
     $('#imgWrap').html('');
     $('.cv_fcv').html('');
-    multipleFileEle.value = '';
+    $('#multipleFile').value = '';
     $('#chooseFile').html('请上传文件');
     allImgNames = [];
-    categoryImgList = [];
-    uniqueCategoryImgList = [];
-    categoryImgListObj = {};
+    cateImgObj = {};
   });
   $('#zoomBigImg').click(function () {
     return zoomImg('big');
@@ -29,100 +27,57 @@ $(function () {
   }); // 缩放图片
 
   function zoomImg(params) {
-    var liList = $("li");
-
-    for (var index = 0; index < liList.length; index++) {
-      liList[index].setAttribute("class", params);
-    }
-  } // 本地上传图片
-
-
-  $('#multipleFile').change(function (ev) {
-    //判断 FileReader 是否被浏览器所支持
-    if (!window.FileReader) return alert('您的浏览器暂不支持FileReader，请升级浏览器，或者使用谷歌浏览器'); // 处理本地上传之后的图片
-
-    handleFileList(ev, 'localImg');
-  });
-
-  function handleFileList(ev, type) {
-    if (type === 'localImg') {
-      var fileList = ev.target.files;
-      Object.getOwnPropertyNames(fileList).forEach(function (key) {
-        var fileName = fileList[key].name;
-
-        if (allImgNames.indexOf(fileName) === -1) {
-          printImg(fileList[key]);
-          allImgNames.push(fileName);
-        }
-
-        var fileNameTit;
-
-        if (fileName.indexOf('_') !== -1) {
-          fileNameTit = fileName.split('_')[0];
-        }
-
-        if (fileName.indexOf('-') !== -1) {
-          fileNameTit = fileName.split('-')[0];
-        }
-
-        if (categoryImgList.findIndex(function (ele) {
-          return ele === fileNameTit;
-        }) === -1) {
-          categoryImgList.push(fileNameTit);
-        }
-      });
-      countImg();
-      unqieClass();
-      ev.target.value = '';
-    }
-
-    if (type === 'urlImg') {
-      handleFileName(ev);
-    }
-  } // 显示总共上传多少张图片
-
+    $("li").removeClass('big small').addClass(params);
+  }
 
   function countImg() {
+    // 显示总共上传多少张图片
     $('#chooseFile').html('共上传' + allImgNames.length + '个文件');
-  } // 生成唯一的class 字符串
+  }
 
+  function genNameTit(fileName) {
+    var fileNameTit;
 
-  function unqieClass() {
-    for (var index = 0; index < categoryImgList.length; index++) {
-      var element = categoryImgList[index];
-
-      if (!categoryImgList[element]) {
-        categoryImgListObj[element] = randomStr();
-      }
+    if (fileName.indexOf('_') !== -1) {
+      fileNameTit = fileName.split('_')[0];
     }
-  } // 处理本地socket图片链接
 
+    if (fileName.indexOf('-') !== -1) {
+      fileNameTit = fileName.split('-')[0];
+    }
 
-  function handleFileName(url) {
-    var urlList = url.split('/');
-    var fileName = urlList.find(function (val) {
-      var itemUpperCase = val.toUpperCase();
+    return fileNameTit;
+  }
 
-      if (itemUpperCase.indexOf('BMP') !== -1 || itemUpperCase.indexOf('JPG') !== -1 || itemUpperCase.indexOf('JPEG') !== -1 || itemUpperCase.indexOf('PNG') !== -1 || itemUpperCase.indexOf('GIF') !== -1) {
-        return val;
+  $('#multipleFile').change(function (ev) {
+    // 本地上传图片
+    //判断 FileReader 是否被浏览器所支持
+    if (!window.FileReader) return alert('您的浏览器暂不支持FileReader，请升级浏览器，或者使用新版谷歌浏览器');
+    handleFileList(ev); // 处理本地上传之后的图片
+  }); // 生成图片类型 字符串
+
+  function calcUniquClass(fileNameTit) {
+    if (!cateImgObj[fileNameTit] && !$('.activeImgWrap')[0]) {
+      cateImgObj[fileNameTit] = randomStr();
+    }
+  }
+
+  function handleFileList(ev) {
+    var fileList = ev.target.files;
+    Object.getOwnPropertyNames(fileList).forEach(function (key) {
+      var fileName = fileList[key].name; // 名称相同的不能再次上传
+
+      if (allImgNames.indexOf(fileName) === -1) {
+        printImg(fileList[key]);
+        allImgNames.push(fileName);
       }
+
+      var fileNameTit = genNameTit(fileName); // 分类名称
+
+      calcUniquClass(fileNameTit);
     });
-    var fileNameTit = fileName.split('?');
-    fileNameTit = fileNameTit[0].split('.')[0];
-
-    if (allImgNames.indexOf(fileName) === -1) {
-      drawToImg(url, fileNameTit, 'urlImg');
-      allImgNames.push(fileName);
-    }
-
-    if (categoryImgList.findIndex(function (ele) {
-      return ele === fileNameTit;
-    }) === -1) {
-      categoryImgList.push(fileNameTit);
-    }
-
     countImg();
-    unqieClass();
+    ev.target.value = '';
   } // 开始打印图片
 
 
@@ -141,40 +96,91 @@ $(function () {
     reader.onload = function (e) {
       drawToImg(this.result, file.name);
     };
+  } // 处理本地socket图片链接
+
+
+  function handleFileName(url) {
+    var urlList = url.split('/');
+    var fileName = urlList.find(function (val) {
+      var itemUpperCase = val.toUpperCase();
+      var imgCate = ['BMP', 'JPG', 'JPEG', 'PNG', 'GIF'];
+      if (imgCate.includes(itemUpperCase)) return val;
+    });
+    var fileNameTit = fileName.split('?');
+    fileNameTit = fileNameTit[0].split('.')[0];
+
+    if (allImgNames.indexOf(fileName) === -1) {
+      drawToImg(url, fileNameTit, 'urlImg');
+      allImgNames.push(fileName);
+    }
+
+    calcUniquClass(fileNameTit);
+    countImg();
   } // 开始画图
 
 
   function drawToImg(result, name, type) {
-    var nameTit;
-
-    if (name.indexOf('_') !== -1) {
-      nameTit = name.split('_')[0];
-    }
-
-    if (name.indexOf('-') !== -1) {
-      nameTit = name.split('-')[0];
-    }
+    var nameTit = genNameTit(name);
 
     if (type === 'urlImg') {
       nameTit = name;
     }
 
-    var imgClassName = categoryImgListObj[nameTit]; // 设置图片列表UL
+    var imgClassName = cateImgObj[nameTit]; // 设置图片列表UL
 
     var ulEle;
 
-    if (document.getElementsByClassName(imgClassName)[0]) {
-      ulEle = document.getElementsByClassName(imgClassName)[0];
+    if ($('.activeImgWrap')[0]) {
+      ulEle = $($('.activeImgWrap')[0]);
+    } else if ($("." + imgClassName)[0]) {
+      ulEle = $($("." + imgClassName)[0]);
     } else {
-      ulEle = document.createElement('ul');
+      ulEle = $('<ul></ul>');
     }
+
+    if (!$(".title" + imgClassName)[0] && !$('.activeImgWrap')[0]) {
+      var divEle = $('<div></div>');
+      divEle.addClass("title" + imgClassName);
+      divEle.css("padding-bottom: 16px");
+      divEle.html('批次：' + name.split('_')[0]);
+      ulEle.append(divEle);
+    }
+
+    var liEle = $('<li class="small"></li>');
+    var imgEle = $('<img class="imgFlag" />');
+    var spanEle = $('<p></p>');
+    ulEle.addClass(imgClassName);
+    liEle.attr('draggable', 'true');
+    liEle.css({
+      position: 'relative'
+    });
+    imgEle.attr({
+      ondragstart: 'return false;',
+      src: result
+    });
+    spanEle.css({
+      'white-space': 'nowrap',
+      width: '200px',
+      overflow: 'hidden',
+      'text-overflow': 'ellipsis',
+      'font-size': '12px',
+      height: '20px'
+    });
+    spanEle.html(name);
+    ulEle.append(liEle);
+    liEle.append(imgEle);
+    liEle.append(spanEle);
+    $('#imgWrap').append(ulEle); // 菜单的逻辑
 
     var menuTreeDiv;
     var menuNodeUl;
 
-    if (document.getElementsByClassName('tree' + imgClassName)[0]) {
-      menuTreeDiv = document.getElementsByClassName('tree' + imgClassName)[0];
-      menuNodeUl = document.getElementsByClassName('node' + imgClassName)[0];
+    if ($('.activeTree')[0]) {
+      menuNodeUl = $($('.activeTree')[0]);
+      menuNodeUl = $($('.activeNode')[0]);
+    } else if ($(".tree" + imgClassName)[0]) {
+      menuTreeDiv = $($(".tree" + imgClassName)[0]);
+      menuNodeUl = $($(".node" + imgClassName)[0]);
     } else {
       menuTreeDiv = $('<div></div>');
       menuTreeDiv.html('批次：' + nameTit);
@@ -185,42 +191,45 @@ $(function () {
       $('.cv_fcv').append(menuNodeUl);
     }
 
-    var menuLi = document.createElement('li');
-    menuLi.setAttribute('class', 'node-item');
-    var menuChildDiv = document.createElement('div');
-    menuChildDiv.setAttribute('class', 'tree');
-    menuChildDiv.innerHTML = name;
-    menuLi.appendChild(menuChildDiv);
+    var menuLi = $('<li class="node-item"></li>');
+    var menuChildDiv = $('<div class="tree"></div>');
+    menuChildDiv.html(name);
+    menuLi.append(menuChildDiv);
     menuNodeUl.append(menuLi);
-
-    if (!document.getElementsByClassName(imgClassName + 'title')[0]) {
-      var divEle = document.createElement('div');
-      divEle.setAttribute('class', imgClassName + 'title');
-      divEle.setAttribute('style', "padding-bottom: 16px");
-      divEle.innerHTML = '批次：' + name.split('_')[0];
-      ulEle.appendChild(divEle);
-    }
-
-    var liEle = document.createElement('li');
-    var imgEle = document.createElement('img');
-    var spanEle = document.createElement('p');
-    ulEle.setAttribute('class', imgClassName);
-    liEle.setAttribute('class', 'small');
-    imgEle.setAttribute('class', 'imgFlag');
-    spanEle.setAttribute("style", "white-space: nowrap;width: 200px;overflow: hidden;text-overflow: ellipsis;font-size: 12px; height: 20px");
-    imgEle.src = result;
-    spanEle.innerHTML = name;
-    ulEle.appendChild(liEle);
-    liEle.appendChild(imgEle);
-    liEle.appendChild(spanEle);
-    imgWrapEle.append(ulEle);
     initMenu();
   }
 
-  function randomStr() {
-    return Math.random().toString(36).slice(-8);
-  }
-
+  $("#imgWrap").on("mouseenter", 'li', function () {
+    $(this).css({
+      'background-color': '#daa520',
+      opacity: '0.5'
+    }).siblings().css({
+      background: '',
+      opacity: ''
+    });
+    var menu = $("<span id='deleteImgItem'>删除此图片</span>");
+    menu.css({
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+      background: '#fff',
+      'border-radius': '4px',
+      border: '1px solid #000',
+      padding: '4px 8px',
+      cursor: 'pointer'
+    });
+    $(this).append(menu);
+  });
+  $("#imgWrap").on("mouseleave", 'li', function () {
+    $(this).css({
+      'background': '',
+      opacity: ''
+    });
+    if ($('#deleteImgItem')) $('#deleteImgItem').remove();
+  });
+  $(document).on("click", '#deleteImgItem', function (ev) {
+    $(this).parent().remove(); //删除#imgWrap的li img
+  });
   $('#imgWrap').click(function (event) {
     event = event || window.event;
     var imgSrc = event && event.target && event.target.currentSrc;
@@ -232,49 +241,17 @@ $(function () {
       var contentHtml = "\n        <div class=\"modal-dialog-content\" id=\"modal-dialog-content\">\n          <img id=\"modal-img\" class=\"modal-img\" src=" + imgSrc + " alt=\"\u5927\u56FE\" />\n          <div class=\"img-title\">" + allImgNames[window.imgIndex] + "</div>\n          <div>\n            <span id=\"prev-button\"></span>\n            <span class=\"close-button\"></span>\n            <span id=\"next-button\"></span>\n            <span class=\"modal-message\"></span>\n          </div>\n        </div\n      ";
       showModa(contentHtml);
     }
-  }); // 提交所有数据
-  // $("#submit").click(function() {
-  //   if (submitFlag) return
-  //   submitFlag = true
-  //   var formData = new FormData();
-  //   var files = $('#multipleFile')[0]
-  //   for(var index = 0; index < files.length; index++) {
-  //     formData.append("file", files[index]);
-  //   }
-  //   var xhr = new XMLHttpRequest()
-  //   xhr.onreadystatechange = function () {
-  //     if (xhr.readyState == 4) {
-  //       if (xhr.status == 200) {
-  //         $('#message').html('提交成功，3秒后消失').attr('style', 'color: green')
-  //         setTimeout(() => {
-  //           $('#message').html('')
-  //         }, 3000);
-  //         submitFlag = false
-  //       } else {
-  //         $('#message').html('提交失败，3秒后消失').attr('style', 'color: red')
-  //         setTimeout(() => {
-  //           $('#message').html('')
-  //         }, 3000);
-  //         submitFlag = false
-  //       }
-  //     }
-  //   }
-  //   xhr.open('POST', 'http://139.199.18.143:8080/upload')
-  //   xhr.send(formData)
-  // });
+  }); // 展示弹窗
 
   function showModa(contentHtml) {
-    var layerEle = document.createElement('div');
-    layerEle.setAttribute('class', 'modal-layer');
-    var contentContainerEle = document.createElement('div');
-    contentContainerEle.setAttribute('class', 'modal-dialog-container');
-    contentContainerEle.innerHTML = contentHtml;
-    layerEle.appendChild(contentContainerEle);
-    document.body.appendChild(layerEle);
-    $('.modal-img').attr({
-      height: window.innerHeight * 0.9
+    var layerEle = $('<div class="modal-layer"></div>');
+    var contentConEle = $('<div class="modal-dialog-container"></div>');
+    contentConEle.html(contentHtml);
+    layerEle.append(contentConEle);
+    $('body').append(layerEle);
+    $('.img-title').css({
+      left: "calc(" + ($('#modal-dialog-content').width() - $('.img-title').width()) * 0.5 + "px)"
     });
-    $('.img-title').attr('style', "left:  calc(" + ($('#modal-dialog-content').width() * 0.5 - $('.img-title').width() * 0.5) + "px)");
   } // 关闭
 
 
@@ -299,7 +276,7 @@ $(function () {
     }
   });
 
-  function clearModalMsg(params) {
+  function clearModalMsg() {
     $('.modal-message').html('');
     $('.modal-message').css({
       "background-color": "",
@@ -309,6 +286,9 @@ $(function () {
 
   function showModalMsg(text) {
     $('.modal-message').html(text).css({
+      position: 'absolute',
+      top: 0,
+      left: "calc(" + ($('#modal-dialog-content').width() - $('.modal-message').width()) * 0.5 + "px)",
       "background-color": "#fff",
       "color": "red",
       "padding": "4px",
@@ -336,36 +316,43 @@ $(function () {
   }); // 菜单显示逻辑
 
   function initMenu() {
-    $(".tree").each(function (index, element) {
+    $(".tree").each(function () {
       if ($(this).next(".node").length > 0) {
         $(this).addClass("ce_ceng_close");
       }
     });
   }
 
-  $('#menu').on('click', '.tree', function (e) {
+  $('#menu').on('click', '.tree', function () {
     var ul = $(this).next(".node");
+    var keyClassName = ul.attr('class') && ul.attr('class').split('node')[2];
+    $("#imgWrap").find("." + keyClassName).show().siblings().hide();
+    console.log('this', $(this));
+    $(this).addClass('activeTree').siblings('.tree').removeClass('activeTree');
+    ul.addClass('activeNode').siblings('.node').removeClass('activeNode');
+    $("#imgWrap").find("." + keyClassName).addClass('activeImgWrap').siblings('ul').removeClass('activeImgWrap');
 
     if (ul.css("display") == "none") {
       ul.slideDown();
-      $(this).addClass("ce_ceng_open");
-      ul.find(".ce_ceng_close").removeClass("ce_ceng_open");
+      $(this).removeClass('ce_ceng_close').addClass("ce_ceng_open");
     } else {
       ul.slideUp();
-      $(this).removeClass("ce_ceng_open");
+      $(this).removeClass("ce_ceng_open").addClass("ce_ceng_close");
       ul.find(".node").slideUp();
-      ul.find(".ce_ceng_close").removeClass("ce_ceng_open");
     }
   });
   $('#menu').on('click', '.cd_title', function () {
     var ul = $('.cv_fcv');
+    $('.activeTree').removeClass('activeTree');
+    $('.activeNode').removeClass('activeNode');
+    $('.activeImgWrap').removeClass('activeImgWrap');
+    $("#imgWrap").children().show();
     if (!ul.children().length) return;
 
     if (ul.css("display") == "none") {
-      // $(this).addClass("cv_fcv_open");
       ul.slideDown();
     } else {
-      ul.slideUp(); // ul.removeClass("cv_fcv_open");
+      ul.slideUp();
     }
   });
   var conn;
@@ -384,13 +371,6 @@ $(function () {
   function appendLogText(text) {
     var item = document.createElement("div");
     item.innerHTML = "<b>" + text + "</b>";
-    appendLog(item);
-  }
-
-  function appendImage(url) {
-    var item = document.createElement("img");
-    item.src = url;
-    item.style = "width:30%;";
     appendLog(item);
   }
 
@@ -488,8 +468,7 @@ $(function () {
         var url = "http://" + document.location.host + "/" + saneEvent.imagePath;
         console.log(url); // 统一调用添加图片函数
 
-        handleFileList(url, 'urlImg'); // appendImage(url)
-
+        handleFileName(url);
         break;
     }
   }
