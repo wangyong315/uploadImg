@@ -40,6 +40,11 @@ html, body, ul, li, p, span, form {
   justify-content: center;
 }
 
+#modal-img {
+  max-width: 90%;
+  max-height: 90%;
+}
+
 #form {
   padding: 10px;
   width: 100%;
@@ -107,8 +112,15 @@ button {
 }
 ul li{
   list-style-type: none;
-  margin-right: 5px;
-  margin-bottom: 5px;
+}
+
+#imgWrap ul li {
+  margin: 4px;
+  padding: 4px;
+}
+
+#imgWrap ul li img {
+  display: block;
 }
 
 #multipleFile {

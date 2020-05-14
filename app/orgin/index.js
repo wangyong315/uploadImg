@@ -146,13 +146,14 @@ $(function() {
       ulEle.append(divEle)
     }
    
-    var liEle = $('<li></li>')
-    var imgEle = $('<img />')
+    var liEle = $('<li class="small"></li>')
+    var imgEle = $('<img class="imgFlag" />')
     var spanEle = $('<p></p>')
     ulEle.addClass(imgClassName)
-    liEle.addClass('small')
     liEle.attr('draggable', 'true')
-    imgEle.addClass('imgFlag')
+    liEle.css({
+      position: 'relative',
+    })
     imgEle.attr({
       ondragstart: 'return false;',
       src: result
@@ -199,33 +200,38 @@ $(function() {
     initMenu()
   }
 
-  $(document).bind("contextmenu", function(){
-    return false;
-  })
-
-  $("#imgWrap").on("contextmenu", 'li', function(ev) {
-    console.log('evev', ev);
-    $('#imgWrap ul li').css('border', 'none')
-    $(this).css('border', '1px solid #000')
-    if($('#deleteImgItem')) $('#deleteImgItem').remove()
+  $("#imgWrap").on("mouseenter", 'li', function() {
+    $(this).css({
+      'background-color': '#daa520',
+      opacity: '0.5'
+    }).siblings().css({
+      background: '',
+      opacity: '',
+    })
     const menu = $("<span id='deleteImgItem'>删除此图片</span>")
     menu.css({
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
       background: '#fff',
+      'border-radius': '4px',
       border: '1px solid #000',
       padding: '4px 8px',
-      position: 'absolute',
-      top: ev.pageY,
-      left: ev.pageX,
+      cursor: 'pointer',
     })
     $(this).append(menu);
   })
 
-  $("#imgWrap").on("contextmenu", function(ev) {
+  $("#imgWrap").on("mouseleave", 'li', function() {
+    $(this).css({
+      'background': '',
+      opacity: ''
+    })
+    if($('#deleteImgItem')) $('#deleteImgItem').remove()
   })
 
-  $("#imgWrap").on("click", '#deleteImgItem', function(ev) {
-    console.log('evev', ev);
-    console.log('evev', ev);
+  $(document).on("click", '#deleteImgItem', function(ev) {
+    $(this).parent().remove() //删除#imgWrap的li img
   })
 
   $('#imgWrap').click(function (event) {
@@ -258,9 +264,8 @@ $(function() {
     contentConEle.html(contentHtml);
     layerEle.append(contentConEle);
     $('body').append(layerEle);
-    $('.modal-img').css({ height: window.innerHeight*0.9 });
     $('.img-title').css({
-       left: `calc(${ $('#modal-dialog-content').width()*0.5 - $('.img-title').width()*0.5 }px)`
+       left: `calc(${ ($('#modal-dialog-content').width() - $('.img-title').width())*0.5 }px)`
     });
   }
 
@@ -286,7 +291,7 @@ $(function() {
     }
   });
 
-  function clearModalMsg(params) {
+  function clearModalMsg() {
     $('.modal-message').html('')
     $('.modal-message').css({
       "background-color":"",
@@ -296,6 +301,9 @@ $(function() {
 
   function showModalMsg(text) {
     $('.modal-message').html(text).css({
+      position: 'absolute',
+      top: 0,
+      left: `calc(${ ($('#modal-dialog-content').width() - $('.modal-message').width())*0.5 }px)`,
       "background-color":"#fff",
       "color":"red",
       "padding": "4px",
