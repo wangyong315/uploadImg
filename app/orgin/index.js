@@ -4,8 +4,6 @@ $(function() {
   }
   // 所有图片数据
   var allImgNames = []
-  // 所有图片分组
-  var categoryImgList = []
   // 图片分组 && className
   var categoryImgListObj = {}
 
@@ -16,7 +14,6 @@ $(function() {
     $('#multipleFile').value = ''
     $('#chooseFile').html('请上传文件')
     allImgNames = []
-    categoryImgList = []
     categoryImgListObj = {}
   })
 
@@ -26,10 +23,7 @@ $(function() {
   
   // 缩放图片
   function zoomImg(params) {
-    const liList = $("li")
-    for (let index = 0; index < liList.length; index++) {
-      $(liList[index]).removeClass('big small').addClass(params);
-    }
+    $("li").removeClass('big small').addClass(params);
   }
 
   // 显示总共上传多少张图片
@@ -37,16 +31,6 @@ $(function() {
     $('#chooseFile').html('共上传' + allImgNames.length + '个文件')
   }
 
-  // 生成唯一的class 字符串
-  function unqieClass() {
-    for (let index = 0; index < categoryImgList.length; index++) {
-      const element = categoryImgList[index];
-      if (!categoryImgListObj[element]) {
-        categoryImgListObj[element] = randomStr()
-      }
-    }
-  }
-  
   // 本地上传图片
   $('#multipleFile').change(function (ev) {
     //判断 FileReader 是否被浏览器所支持
@@ -55,9 +39,16 @@ $(function() {
     handleFileList(ev)
   })
 
+  function calcUniquClass(fileNameTit) {
+    categoryImgListObj[fileNameTit] = ''
+    if (!categoryImgListObj[fileNameTit]) {
+      categoryImgListObj[fileNameTit] = randomStr()
+    }
+  }
+
   function handleFileList(ev) {
     var fileList = ev.target.files;  
-    Object.getOwnPropertyNames(fileList).forEach(function(key){
+    Object.getOwnPropertyNames(fileList).forEach(function(key) {
       var fileName = fileList[key].name
       if (allImgNames.indexOf(fileName) === -1) {
         printImg(fileList[key])
@@ -70,12 +61,9 @@ $(function() {
       if (fileName.indexOf('-') !== -1) {
         fileNameTit = fileName.split('-')[0]
       }
-      if (categoryImgList.findIndex(ele => ele === fileNameTit) === -1) {
-        categoryImgList.push(fileNameTit)
-      }
+      calcUniquClass(fileNameTit)
     });
     countImg()
-    unqieClass()
     ev.target.value = ''
   }
 
@@ -107,11 +95,8 @@ $(function() {
       drawToImg(url, fileNameTit, 'urlImg')
       allImgNames.push(fileName)
     }
-    if (categoryImgList.findIndex(ele => ele === fileNameTit) === -1) {
-      categoryImgList.push(fileNameTit)
-    }
+    calcUniquClass(fileNameTit)
     countImg()
-    unqieClass()
   }
 
   // 开始画图
@@ -196,7 +181,10 @@ $(function() {
     menuChildDiv.html(name)
     menuLi.append(menuChildDiv)
     menuNodeUl.append(menuLi)
- 
+
+    console.log('allImgNames', allImgNames);
+    console.log('categoryImgListObj', categoryImgListObj);
+    
     initMenu()
   }
 
