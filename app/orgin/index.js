@@ -6,6 +6,19 @@ $(function() {
   
   var cateImgObj = {} // 图片分组 && className
 
+  const imgTitleCss = {
+    position: 'absolute',
+    bottom: '32px',
+    left: '50%',
+    transform: 'translate3d(-50%, 0, 0)',
+    padding: '6px 16px',
+    'border-radius': '20px',
+    border: '1px solid #fff',
+    'background-color': 'rgba(0, 0, 0, 0.4)',
+    'font-size': '14px',
+    color: '#fff',
+  }
+
   function clearAllData(params) { // 清空所有图片
     $('#imgWrap').html('')
     $('.cv_fcv').html('')
@@ -121,19 +134,15 @@ $(function() {
       divEle.css("padding-bottom: 16px")
       divEle.html('批次：' + name.split('_')[0])
       ulEle.append(divEle)
+      ulEle.addClass(imgClassName)
     }
    
     var liEle = $(`<li class="small" data-keyname=${imgClassName}></li>`)
-    var imgEle = $('<img class="imgFlag" />')
+    var imgEle = $(`<img class="imgFlag" data-srcid=img${randomStr()} src=${result} />`)
     var spanEle = $('<p></p>')
-    ulEle.addClass(imgClassName)
     liEle.attr('draggable', 'true')
     liEle.css({
       position: 'relative',
-    })
-    imgEle.attr({
-      ondragstart: 'return false;',
-      src: result,
     })
     spanEle.css({
       'white-space': 'nowrap',
@@ -176,7 +185,7 @@ $(function() {
   $("#imgWrap").on("mouseenter", 'li', function() {
     $(this).css({
       'background-color': '#daa520',
-      opacity: '0.5'
+      // opacity: '0.5'
     }).siblings().css({
       background: '',
       opacity: '',
@@ -184,12 +193,13 @@ $(function() {
     const menu = $(`<span id='deleteImgItem' data-keyname=${$(this).data('keyname')}>删除此图片</span>`)
     menu.css({
       position: 'absolute',
-      bottom: 0,
-      right: 0,
+      bottom: '8px',
+      right: '8px',
       background: '#fff',
       'border-radius': '4px',
       border: '1px solid #000',
-      padding: '4px 8px',
+      padding: '2px 4px',
+      'font-size': '13px',
       cursor: 'pointer',
     })
     $(this).append(menu);
@@ -203,8 +213,9 @@ $(function() {
     if($('#deleteImgItem')) $('#deleteImgItem').remove()
   })
 
-  $(document).on("click", '#deleteImgItem', function() {
-    const keyName =  $(this).data('keyname')
+  $(document).on("click", '#deleteImgItem', function(event) {
+    event.stopPropagation()
+    const keyName = $(this).data('keyname')
     const imgName = $(this).siblings('p').html()
     $(`.node${keyName} li:contains(${imgName})`).remove() // 删除菜单中item
     $(this).parent().remove() //删除#imgWrap的li img
@@ -219,59 +230,45 @@ $(function() {
     }
   })
 
-  $('#imgWrap').click(function (event) {
-    event = event || window.event;
-    const imgSrc = event && event.target && event.target.currentSrc
-    var target = event.target || event.srcElement;
-    var imgParentNode = target.parentNode
-    window.imgIndex = Array.prototype.slice.call($('img')).indexOf(event.target)
-    if (target.tagName === 'IMG' && imgParentNode.tagName === 'LI') {
-      const contentHtml = `
-        <div class="modal-dialog-content" id="modal-dialog-content">
-          <img id="modal-img" class="modal-img" src=${imgSrc} alt="大图" />
-          <div class="img-title">${allImgNames [window.imgIndex]}</div>
-          <div>
-            <span id="prev-button"></span>
-            <span class="close-button"></span>
-            <span id="next-button"></span>
-            <span class="modal-message"></span>
-          </div>
-        </div
-      `;
-      showModa(contentHtml)
-    }
+  $('#imgWrap').on('click', 'li', function (event) {
+    event.stopPropagation()
+    const keyName = $(this).data('keyname')
+    const srcid = $(this).children('img').data('srcid')
+    const imgSrc = $(this).children('img').attr('src')
+    const imgTit = $(this).children('p').html()
+    const contentHtml = `
+      <div class="modal-dialog-content" id="modal-dialog-content">
+        <img id="modal-img" class="modal-img" alt="大图" />
+        <div class="img-title"></div>
+        <div>
+          <span id="prev-button"></span>
+          <span class="close-button"></span>
+          <span id="next-button"></span>
+          <span class="modal-message"></span>
+        </div>
+      </div
+    `;
+    showModa(contentHtml, keyName, imgSrc, imgTit, srcid)
   })
 
-  function showModa(contentHtml) { // 展示弹窗
+  function showModa(contentHtml, keyName, imgSrc, imgTit, srcid) { // 展示弹窗
     const layerEle = $('<div class="modal-layer"></div>');
     const contentConEle = $('<div class="modal-dialog-container"></div>');
     contentConEle.html(contentHtml);
     layerEle.append(contentConEle);
     $('body').append(layerEle);
-    $('.img-title').css({
-       left: `calc(${ ($('#modal-dialog-content').width() - $('.img-title').width())*0.5 }px)`
-    });
+    $('.img-title').html(imgTit);
+    $('.img-title').css(imgTitleCss);
+    $('.modal-img').attr({
+      src: imgSrc,
+      'data-srcid': srcid
+    })
   }
 
   $(document).on('click','.close-button', function() { // 关闭
     $('.modal-layer').remove()
   });
 
-  $(document).on('click', '#prev-button', function() { // 上一个
-    var imgIndex = -- window.imgIndex
-    if (imgIndex >= 0) {
-      $('.img-title').html(allImgNames[imgIndex])
-      $('.img-title').attr('style', `left:  calc(${ $('#modal-dialog-content').width()*0.5 - $('.img-title').width()*0.5 }px)`);
-      var imgSrc = Array.prototype.slice.call($('.imgFlag'))[imgIndex].currentSrc
-      $('#modal-img').attr('src', imgSrc)
-    } else {
-      showModalMsg('当前是第一页')
-      setTimeout(() => {
-        clearModalMsg()
-      }, 3000);
-      ++ window.imgIndex
-    }
-  });
 
   function clearModalMsg() {
     $('.modal-message').html('')
@@ -293,22 +290,46 @@ $(function() {
     });
   }
 
-  $(document).on('click','#next-button',function(){ // 下一个
-    var imgIndex = ++ window.imgIndex
-    var imgLength =  Array.prototype.slice.call($('.imgFlag')).length
-    if (imgIndex < imgLength) {
-      $('.img-title').html(allImgNames [window.imgIndex])
-      $('.img-title').attr('style', `left:  calc(${ $('#modal-dialog-content').width()*0.5 - $('.img-title').width()*0.5 }px)`);
-      var imgSrc = Array.prototype.slice.call($('.imgFlag'))[imgIndex].currentSrc
-      $('#modal-img').attr('src', imgSrc)
-    } else {
-      showModalMsg('当前是最后一页')
-      setTimeout(() => {
-        clearModalMsg()
-      }, 3000);
-      -- window.imgIndex
+  function showNextPrev(type) {
+    const currentSrcId = $('.modal-img').data('srcid')
+    const allImgWrapLI = $(`#imgWrap ul:visible li`)
+    const currentImg = $(`#imgWrap ul:visible li img[data-srcid=${currentSrcId}]`)
+    let currentIndex =  allImgWrapLI.index(currentImg.parent())
+    console.log('currentIndex', currentIndex);
+    const prevLi = allImgWrapLI.eq(type === 'prev' ? --currentIndex : ++currentIndex)
+    if (currentIndex < 0) {
+      showThenHide('当前是第一页')
+      return 
     }
+
+    if (currentIndex === allImgWrapLI.length) {
+      showThenHide('当前是最后一页')
+      return 
+    }
+    console.log('prevLi', prevLi);
+    const imgTit = prevLi.children('p').html()
+    const imgSrc = prevLi.children('img').attr('src')
+    const srcid = prevLi.children('img').data('srcid')
+    $('.img-title').html(imgTit)
+    $('.img-title').css(imgTitleCss);
+    $('.modal-img').attr({ src: imgSrc })
+    $('.modal-img').data('srcid', srcid)
+  }
+
+  $(document).on('click', '#prev-button', function() { // 上一个
+    showNextPrev('prev')
   });
+
+  $(document).on('click', '#next-button', function() { // 下一个
+    showNextPrev('next')
+  });
+
+  function showThenHide(params) {
+    showModalMsg(params)
+    setTimeout(() => {
+      clearModalMsg()
+    }, 3000);
+  }
   
   // 菜单显示逻辑
   function initMenu() {
