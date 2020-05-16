@@ -103,6 +103,7 @@ button {
 }
 
 #imgWrap ul {
+  width: 100%;
   overflow: hidden;
 }
 #imgWrap .small {
@@ -115,7 +116,8 @@ button {
   height: 282px;
 }
 #imgWrap .big img {
-  width: 1000px;
+  display: block;
+  width: 100%;
 }
 ul li{
   list-style-type: none;

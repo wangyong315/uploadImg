@@ -34,7 +34,7 @@ $(function() {
     color: '#fff',
   }
 
-  function clearAllData(params) { // 清空所有图片
+  function clearAllData() { // 清空所有图片
     $('#imgWrap').html('')
     $('.cv_fcv').html('')
     $('#multipleFile').value = ''
@@ -140,9 +140,6 @@ $(function() {
   // 开始画图
   function drawToImg(result, name, type) {
     var nameTit = genNameTit(name, type)
-    // if (type === 'urlImg') {
-    //   nameTit = name
-    // }
     var imgClassName = cateImgObj[nameTit]
 
     if (type === 'urlImg') {
@@ -168,6 +165,7 @@ $(function() {
     }
    
     var liEle = $(`<li class="small" data-keyname=${imgClassName}></li>`)
+    var divEle = $('<div></div');
     var imgEle = $(`<img class="imgFlag" data-srcid=img${randomStr()} src=${result} />`)
     var spanEle = $('<p></p>')
     liEle.attr('draggable', 'true')
@@ -183,9 +181,9 @@ $(function() {
       height: '20px'
     });
     spanEle.html(name)
-    ulEle.append(liEle)
     liEle.append(imgEle)
     liEle.append(spanEle)
+    ulEle.append(liEle)
     $('#imgWrap').append(ulEle)
 
     var menuTreeDiv // 菜单的逻辑
@@ -215,7 +213,7 @@ $(function() {
   $("#imgWrap").on("mouseenter", 'li', function() {
     $(this).css({
       'background-color': '#daa520',
-      // opacity: '0.5'
+      opacity: '0.8'
     }).siblings().css({
       background: '',
       opacity: '',
@@ -261,12 +259,13 @@ $(function() {
     }
   })
 
-  $('#imgWrap').on('click', 'li', function (event) {
-    event.stopPropagation()
-    const keyName = $(this).data('keyname')
-    const srcid = $(this).children('img').data('srcid')
-    const imgSrc = $(this).children('img').attr('src')
-    const imgTit = $(this).children('p').html()
+  $('#imgWrap').on('click', 'img', function (event) {
+    console.log('thias', $(this));
+    const liImg = $(this).parent()
+    const keyName = liImg.data('keyname')
+    const srcid = liImg.children('img').data('srcid')
+    const imgSrc = liImg.children('img').attr('src')
+    const imgTit = liImg.children('p').html()
     const contentHtml = `
       <div class="modal-dialog-content" id="modal-dialog-content">
         <img id="modal-img" class="modal-img" alt="大图" />
