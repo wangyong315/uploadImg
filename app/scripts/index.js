@@ -10,7 +10,20 @@ $(function () {
 
   var cateImgObj = {}; // 图片分组 && className
 
-  $('#clear').click(function () {
+  var imgTitleCss = {
+    position: 'absolute',
+    bottom: '8px',
+    left: '50%',
+    transform: 'translate3d(-50%, 0, 0)',
+    padding: '6px 16px',
+    'border-radius': '20px',
+    border: '1px solid #fff',
+    'background-color': 'rgba(0, 0, 0, 0.4)',
+    'font-size': '14px',
+    color: '#fff'
+  };
+
+  function clearAllData() {
     // 清空所有图片
     $('#imgWrap').html('');
     $('.cv_fcv').html('');
@@ -18,7 +31,9 @@ $(function () {
     $('#chooseFile').html('请上传文件');
     allImgNames = [];
     cateImgObj = {};
-  });
+  }
+
+  $('#clear').click(clearAllData);
   $('#zoomBigImg').click(function () {
     return zoomImg('big');
   });
@@ -35,7 +50,7 @@ $(function () {
     $('#chooseFile').html('共上传' + allImgNames.length + '个文件');
   }
 
-  function genNameTit(fileName) {
+  function genNameTit(fileName, type) {
     var fileNameTit;
 
     if (fileName.indexOf('_') !== -1) {
@@ -44,6 +59,10 @@ $(function () {
 
     if (fileName.indexOf('-') !== -1) {
       fileNameTit = fileName.split('-')[0];
+    }
+
+    if (type === 'urlImg') {
+      fileNameTit = fileName;
     }
 
     return fileNameTit;
@@ -56,18 +75,23 @@ $(function () {
     handleFileList(ev); // 处理本地上传之后的图片
   }); // 生成图片类型 字符串
 
-  function calcUniquClass(fileNameTit) {
+  function calcUniquClass(fileNameTit, type) {
     if (!cateImgObj[fileNameTit] && !$('.activeImgWrap')[0]) {
       cateImgObj[fileNameTit] = randomStr();
+    }
+
+    if (type === 'urlImg') {
+      cateImgObj['公共批次'] = 'commonList';
     }
   }
 
   function handleFileList(ev) {
     var fileList = ev.target.files;
     Object.getOwnPropertyNames(fileList).forEach(function (key) {
-      var fileName = fileList[key].name; // 名称相同的不能再次上传
+      var fileName = fileList[key].name;
 
       if (allImgNames.indexOf(fileName) === -1) {
+        // 名称相同的不能再次上传
         printImg(fileList[key]);
         allImgNames.push(fileName);
       }
@@ -78,10 +102,10 @@ $(function () {
     });
     countImg();
     ev.target.value = '';
-  } // 开始打印图片
-
+  }
 
   function printImg(file) {
+    // 开始打印图片
     if (!file.type.match('image/*')) {
       alert('上传的图片必须是png,gif,jpg格式！');
       ev.target.value = ""; //显示文件的值赋值为空
@@ -96,39 +120,45 @@ $(function () {
     reader.onload = function (e) {
       drawToImg(this.result, file.name);
     };
-  } // 处理本地socket图片链接
-
+  }
 
   function handleFileName(url) {
+    // 处理本地socket图片链接
     var urlList = url.split('/');
-    var fileName = urlList.find(function (val) {
+    var fileName;
+    urlList.forEach(function (val) {
       var itemUpperCase = val.toUpperCase();
       var imgCate = ['BMP', 'JPG', 'JPEG', 'PNG', 'GIF'];
-      if (imgCate.includes(itemUpperCase)) return val;
+
+      for (var index = 0; index < imgCate.length; index++) {
+        var element = imgCate[index];
+
+        if (itemUpperCase.includes(element)) {
+          fileName = itemUpperCase;
+        }
+      }
     });
-    var fileNameTit = fileName.split('?');
-    fileNameTit = fileNameTit[0].split('.')[0];
+    var fileNameTit = fileName.split('.')[0];
+    calcUniquClass(fileNameTit, 'urlImg');
 
     if (allImgNames.indexOf(fileName) === -1) {
       drawToImg(url, fileNameTit, 'urlImg');
       allImgNames.push(fileName);
     }
 
-    calcUniquClass(fileNameTit);
     countImg();
   } // 开始画图
 
 
   function drawToImg(result, name, type) {
-    var nameTit = genNameTit(name);
+    var nameTit = genNameTit(name, type);
+    var imgClassName = cateImgObj[nameTit];
 
     if (type === 'urlImg') {
-      nameTit = name;
+      imgClassName = cateImgObj['公共批次'];
     }
 
-    var imgClassName = cateImgObj[nameTit]; // 设置图片列表UL
-
-    var ulEle;
+    var ulEle; // 设置图片列表UL
 
     if ($('.activeImgWrap')[0]) {
       ulEle = $($('.activeImgWrap')[0]);
@@ -144,19 +174,16 @@ $(function () {
       divEle.css("padding-bottom: 16px");
       divEle.html('批次：' + name.split('_')[0]);
       ulEle.append(divEle);
+      ulEle.addClass(imgClassName);
     }
 
-    var liEle = $('<li class="small"></li>');
-    var imgEle = $('<img class="imgFlag" />');
+    var liEle = $("<li class=\"small\" data-keyname=" + imgClassName + "></li>");
+    var divEle = $('<div></div');
+    var imgEle = $("<img class=\"imgFlag\" data-srcid=img" + randomStr() + " src=" + result + " />");
     var spanEle = $('<p></p>');
-    ulEle.addClass(imgClassName);
     liEle.attr('draggable', 'true');
     liEle.css({
       position: 'relative'
-    });
-    imgEle.attr({
-      ondragstart: 'return false;',
-      src: result
     });
     spanEle.css({
       'white-space': 'nowrap',
@@ -167,16 +194,16 @@ $(function () {
       height: '20px'
     });
     spanEle.html(name);
-    ulEle.append(liEle);
     liEle.append(imgEle);
     liEle.append(spanEle);
-    $('#imgWrap').append(ulEle); // 菜单的逻辑
+    ulEle.append(liEle);
+    $('#imgWrap').append(ulEle);
+    var menuTreeDiv; // 菜单的逻辑
 
-    var menuTreeDiv;
     var menuNodeUl;
 
     if ($('.activeTree')[0]) {
-      menuNodeUl = $($('.activeTree')[0]);
+      menuTreeDiv = $($('.activeTree')[0]);
       menuNodeUl = $($('.activeNode')[0]);
     } else if ($(".tree" + imgClassName)[0]) {
       menuTreeDiv = $($(".tree" + imgClassName)[0]);
@@ -192,9 +219,7 @@ $(function () {
     }
 
     var menuLi = $('<li class="node-item"></li>');
-    var menuChildDiv = $('<div class="tree"></div>');
-    menuChildDiv.html(name);
-    menuLi.append(menuChildDiv);
+    menuLi.html(name);
     menuNodeUl.append(menuLi);
     initMenu();
   }
@@ -202,20 +227,21 @@ $(function () {
   $("#imgWrap").on("mouseenter", 'li', function () {
     $(this).css({
       'background-color': '#daa520',
-      opacity: '0.5'
+      opacity: '0.8'
     }).siblings().css({
       background: '',
       opacity: ''
     });
-    var menu = $("<span id='deleteImgItem'>删除此图片</span>");
+    var menu = $("<span id='deleteImgItem' data-keyname=" + $(this).data('keyname') + ">\u5220\u9664\u6B64\u56FE\u7247</span>");
     menu.css({
       position: 'absolute',
-      bottom: 0,
-      right: 0,
+      bottom: '8px',
+      right: '8px',
       background: '#fff',
       'border-radius': '4px',
       border: '1px solid #000',
-      padding: '4px 8px',
+      padding: '2px 4px',
+      'font-size': '13px',
       cursor: 'pointer'
     });
     $(this).append(menu);
@@ -227,53 +253,54 @@ $(function () {
     });
     if ($('#deleteImgItem')) $('#deleteImgItem').remove();
   });
-  $(document).on("click", '#deleteImgItem', function (ev) {
+  $(document).on("click", '#deleteImgItem', function (event) {
+    event.stopPropagation();
+    var keyName = $(this).data('keyname');
+    var imgName = $(this).siblings('p').html();
+    $(".node" + keyName + " li:contains(" + imgName + ")").remove(); // 删除菜单中item
+
     $(this).parent().remove(); //删除#imgWrap的li img
-  });
-  $('#imgWrap').click(function (event) {
-    event = event || window.event;
-    var imgSrc = event && event.target && event.target.currentSrc;
-    var target = event.target || event.srcElement;
-    var imgParentNode = target.parentNode;
-    window.imgIndex = Array.prototype.slice.call($('img')).indexOf(event.target);
 
-    if (target.tagName === 'IMG' && imgParentNode.tagName === 'LI') {
-      var contentHtml = "\n        <div class=\"modal-dialog-content\" id=\"modal-dialog-content\">\n          <img id=\"modal-img\" class=\"modal-img\" src=" + imgSrc + " alt=\"\u5927\u56FE\" />\n          <div class=\"img-title\">" + allImgNames[window.imgIndex] + "</div>\n          <div>\n            <span id=\"prev-button\"></span>\n            <span class=\"close-button\"></span>\n            <span id=\"next-button\"></span>\n            <span class=\"modal-message\"></span>\n          </div>\n        </div\n      ";
-      showModa(contentHtml);
+    var index = allImgNames.indexOf(imgName);
+    allImgNames.splice(index, 1);
+    countImg();
+    if (!allImgNames.length) clearAllData();
+
+    if (!$("." + keyName + " li").length) {
+      $("." + keyName).remove();
+      $(".tree" + keyName).remove();
+      $(".node" + keyName).remove();
     }
-  }); // 展示弹窗
+  });
+  $('#imgWrap').on('click', 'img', function (event) {
+    console.log('thias', $(this));
+    var liImg = $(this).parent();
+    var keyName = liImg.data('keyname');
+    var srcid = liImg.children('img').data('srcid');
+    var imgSrc = liImg.children('img').attr('src');
+    var imgTit = liImg.children('p').html();
+    var contentHtml = "\n      <div class=\"modal-dialog-content\" id=\"modal-dialog-content\">\n        <img id=\"modal-img\" class=\"modal-img\" alt=\"\u5927\u56FE\" />\n        <div class=\"img-title\"></div>\n        <div>\n          <span id=\"prev-button\"></span>\n          <span class=\"close-button\"></span>\n          <span id=\"next-button\"></span>\n          <span class=\"modal-message\"></span>\n        </div>\n      </div\n    ";
+    showModa(contentHtml, keyName, imgSrc, imgTit, srcid);
+  });
 
-  function showModa(contentHtml) {
+  function showModa(contentHtml, keyName, imgSrc, imgTit, srcid) {
+    // 展示弹窗
     var layerEle = $('<div class="modal-layer"></div>');
     var contentConEle = $('<div class="modal-dialog-container"></div>');
     contentConEle.html(contentHtml);
     layerEle.append(contentConEle);
     $('body').append(layerEle);
-    $('.img-title').css({
-      left: "calc(" + ($('#modal-dialog-content').width() - $('.img-title').width()) * 0.5 + "px)"
+    $('.img-title').html(imgTit);
+    $('.img-title').css(imgTitleCss);
+    $('.modal-img').attr({
+      src: imgSrc,
+      'data-srcid': srcid
     });
-  } // 关闭
-
+  }
 
   $(document).on('click', '.close-button', function () {
+    // 关闭
     $('.modal-layer').remove();
-  }); // 上一个
-
-  $(document).on('click', '#prev-button', function () {
-    var imgIndex = --window.imgIndex;
-
-    if (imgIndex >= 0) {
-      $('.img-title').html(allImgNames[imgIndex]);
-      $('.img-title').attr('style', "left:  calc(" + ($('#modal-dialog-content').width() * 0.5 - $('.img-title').width() * 0.5) + "px)");
-      var imgSrc = Array.prototype.slice.call($('.imgFlag'))[imgIndex].currentSrc;
-      $('#modal-img').attr('src', imgSrc);
-    } else {
-      showModalMsg('当前是第一页');
-      setTimeout(function () {
-        clearModalMsg();
-      }, 3000);
-      ++window.imgIndex;
-    }
   });
 
   function clearModalMsg() {
@@ -288,32 +315,61 @@ $(function () {
     $('.modal-message').html(text).css({
       position: 'absolute',
       top: 0,
-      left: "calc(" + ($('#modal-dialog-content').width() - $('.modal-message').width()) * 0.5 + "px)",
       "background-color": "#fff",
       "color": "red",
       "padding": "4px",
-      "border-raduis": '4px'
+      "border-raduis": '4px',
+      left: '50%',
+      transform: 'translate3d(-50%, 0, 0)'
     });
-  } // 下一个
+  }
 
+  function showNextPrev(type) {
+    var currentSrcId = $('.modal-img').data('srcid');
+    var allImgWrapLI = $("#imgWrap ul:visible li");
+    var currentImg = $("#imgWrap ul:visible li img[data-srcid=" + currentSrcId + "]");
+    var currentIndex = allImgWrapLI.index(currentImg.parent());
+    console.log('currentIndex', currentIndex);
+    var prevLi = allImgWrapLI.eq(type === 'prev' ? --currentIndex : ++currentIndex);
 
-  $(document).on('click', '#next-button', function () {
-    var imgIndex = ++window.imgIndex;
-    var imgLength = Array.prototype.slice.call($('.imgFlag')).length;
-
-    if (imgIndex < imgLength) {
-      $('.img-title').html(allImgNames[window.imgIndex]);
-      $('.img-title').attr('style', "left:  calc(" + ($('#modal-dialog-content').width() * 0.5 - $('.img-title').width() * 0.5) + "px)");
-      var imgSrc = Array.prototype.slice.call($('.imgFlag'))[imgIndex].currentSrc;
-      $('#modal-img').attr('src', imgSrc);
-    } else {
-      showModalMsg('当前是最后一页');
-      setTimeout(function () {
-        clearModalMsg();
-      }, 3000);
-      --window.imgIndex;
+    if (currentIndex < 0) {
+      showThenHide('当前是第一页');
+      return;
     }
-  }); // 菜单显示逻辑
+
+    if (currentIndex === allImgWrapLI.length) {
+      showThenHide('当前是最后一页');
+      return;
+    }
+
+    console.log('prevLi', prevLi);
+    var imgTit = prevLi.children('p').html();
+    var imgSrc = prevLi.children('img').attr('src');
+    var srcid = prevLi.children('img').data('srcid');
+    $('.img-title').html(imgTit);
+    $('.img-title').css(imgTitleCss);
+    $('.modal-img').attr({
+      src: imgSrc
+    });
+    $('.modal-img').data('srcid', srcid);
+  }
+
+  $(document).on('click', '#prev-button', function () {
+    // 上一个
+    showNextPrev('prev');
+  });
+  $(document).on('click', '#next-button', function () {
+    // 下一个
+    showNextPrev('next');
+  });
+
+  function showThenHide(params) {
+    showModalMsg(params);
+    setTimeout(function () {
+      clearModalMsg();
+    }, 3000);
+  } // 菜单显示逻辑
+
 
   function initMenu() {
     $(".tree").each(function () {
@@ -333,12 +389,12 @@ $(function () {
     $("#imgWrap").find("." + keyClassName).addClass('activeImgWrap').siblings('ul').removeClass('activeImgWrap');
 
     if (ul.css("display") == "none") {
-      ul.slideDown();
-      $(this).removeClass('ce_ceng_close').addClass("ce_ceng_open");
+      ul.slideDown().siblings('.node').slideUp();
+      $(this).removeClass('ce_ceng_close').addClass("ce_ceng_open").siblings('.tree').removeClass('ce_ceng_open').addClass("ce_ceng_close");
     } else {
-      ul.slideUp();
+      ul.slideUp().find(".node").slideUp();
+      ;
       $(this).removeClass("ce_ceng_open").addClass("ce_ceng_close");
-      ul.find(".node").slideUp();
     }
   });
   $('#menu').on('click', '.cd_title', function () {

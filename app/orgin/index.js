@@ -1,20 +1,4 @@
 $(function() {
-  const testimg = [
-    'http://5b0988e595225.cdn.sohucs.com/images/20190609/197ebdf20c5a421981a927107b2368f3.JPG',
-    'https://xqimg.imedao.com/171c3d543ee45f63fca68fc7.jpg',
-    'http://5b0988e595225.cdn.sohucs.com/images/20200507/c9d7d1d2802a49d0828be8ceeccb9fac.jpeg',
-  ]
-
-  testimg.map(val => {
-    printURL(val)
-  })
-
-  function printURL(params) {
-    setTimeout(() => {
-      handleFileName(params)
-    }, 1000);
-  }
-
   const randomStr = () => Math.random().toString(36).slice(-8) // 生成唯一字符串
   
   var allImgNames = [] // 所有图片数据
@@ -66,7 +50,7 @@ $(function() {
       fileNameTit = fileName.split('-')[0]
     }
     if (type === 'urlImg') {
-      fileNameTit = '公共批次'
+      fileNameTit = fileName
     }
     return fileNameTit
   }
@@ -242,7 +226,6 @@ $(function() {
   })
 
   $(document).on("click", '#deleteImgItem', function(event) {
-  // $('#imgWrap ul li #deleteImgItem').on("click", function(event) {
     event.stopPropagation()
     const keyName = $(this).data('keyname')
     const imgName = $(this).siblings('p').html()
