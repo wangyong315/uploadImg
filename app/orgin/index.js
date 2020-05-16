@@ -8,7 +8,7 @@ $(function() {
 
   const imgTitleCss = {
     position: 'absolute',
-    bottom: '32px',
+    bottom: '8px',
     left: '50%',
     transform: 'translate3d(-50%, 0, 0)',
     padding: '6px 16px',
@@ -214,6 +214,7 @@ $(function() {
   })
 
   $(document).on("click", '#deleteImgItem', function(event) {
+  // $('#imgWrap ul li #deleteImgItem').on("click", function(event) {
     event.stopPropagation()
     const keyName = $(this).data('keyname')
     const imgName = $(this).siblings('p').html()
@@ -282,11 +283,12 @@ $(function() {
     $('.modal-message').html(text).css({
       position: 'absolute',
       top: 0,
-      left: `calc(${ ($('#modal-dialog-content').width() - $('.modal-message').width())*0.5 }px)`,
       "background-color":"#fff",
       "color":"red",
       "padding": "4px",
-      "border-raduis": '4px'
+      "border-raduis": '4px',
+      left: '50%',
+      transform: 'translate3d(-50%, 0, 0)',
     });
   }
 
@@ -349,12 +351,11 @@ $(function() {
     ul.addClass('activeNode').siblings('.node').removeClass('activeNode')
     $("#imgWrap").find(`.${keyClassName}`).addClass('activeImgWrap').siblings('ul').removeClass('activeImgWrap')
     if(ul.css("display") == "none") {
-      ul.slideDown();
-      $(this).removeClass('ce_ceng_close').addClass("ce_ceng_open")
+      ul.slideDown().siblings('.node').slideUp()
+      $(this).removeClass('ce_ceng_close').addClass("ce_ceng_open").siblings('.tree').removeClass('ce_ceng_open').addClass("ce_ceng_close")
     } else {
-      ul.slideUp();
+      ul.slideUp().find(".node").slideUp();;
       $(this).removeClass("ce_ceng_open").addClass("ce_ceng_close");
-      ul.find(".node").slideUp();
     }
   })
 
