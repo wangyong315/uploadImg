@@ -1,4 +1,19 @@
 $(function() {
+  const testimg = [
+    'http://5b0988e595225.cdn.sohucs.com/images/20190609/197ebdf20c5a421981a927107b2368f3.JPG',
+    'https://xqimg.imedao.com/171c3d543ee45f63fca68fc7.jpg',
+    'http://5b0988e595225.cdn.sohucs.com/images/20200507/c9d7d1d2802a49d0828be8ceeccb9fac.jpeg',
+  ]
+
+  testimg.map(val => {
+    printURL(val)
+  })
+
+  function printURL(params) {
+    setTimeout(() => {
+      handleFileName(params)
+    }, 1000);
+  }
 
   const randomStr = () => Math.random().toString(36).slice(-8) // 生成唯一字符串
   
@@ -42,13 +57,16 @@ $(function() {
     $('#chooseFile').html('共上传' + allImgNames.length + '个文件')
   }
 
-  function genNameTit(fileName) {
+  function genNameTit(fileName, type) {
     var fileNameTit
     if (fileName.indexOf('_') !== -1) {
       fileNameTit = fileName.split('_')[0]
     }
     if (fileName.indexOf('-') !== -1) {
       fileNameTit = fileName.split('-')[0]
+    }
+    if (type === 'urlImg') {
+      fileNameTit = '公共批次'
     }
     return fileNameTit
   }
@@ -60,9 +78,12 @@ $(function() {
   })
 
   // 生成图片类型 字符串
-  function calcUniquClass(fileNameTit) {
+  function calcUniquClass(fileNameTit, type) {
     if (!cateImgObj[fileNameTit] && !$('.activeImgWrap')[0]) {
       cateImgObj[fileNameTit] = randomStr()
+    }
+    if (type === 'urlImg') {
+      cateImgObj['公共批次'] = 'commonList'
     }
   }
 
@@ -96,29 +117,38 @@ $(function() {
  
   function handleFileName(url) { // 处理本地socket图片链接
     const urlList = url.split('/')
-    var fileName = urlList.find((val) => {
+    var fileName
+    urlList.forEach((val) => {
       const itemUpperCase = val.toUpperCase()
       const imgCate = ['BMP', 'JPG', 'JPEG', 'PNG', 'GIF']
-      if (imgCate.includes(itemUpperCase)) return val
+      for (let index = 0; index < imgCate.length; index++) {
+        const element = imgCate[index];
+        if (itemUpperCase.includes(element)) {
+          fileName = itemUpperCase
+        }
+      }
     })
-    var fileNameTit = fileName.split('?');
-    fileNameTit = fileNameTit[0].split('.')[0];
+    var fileNameTit = fileName.split('.')[0];
+    calcUniquClass(fileNameTit, 'urlImg')
     if (allImgNames.indexOf(fileName) === -1) {
       drawToImg(url, fileNameTit, 'urlImg')
       allImgNames.push(fileName)
     }
-    calcUniquClass(fileNameTit)
     countImg()
   }
 
   // 开始画图
   function drawToImg(result, name, type) {
-    var nameTit = genNameTit(name)
+    var nameTit = genNameTit(name, type)
+    // if (type === 'urlImg') {
+    //   nameTit = name
+    // }
+    var imgClassName = cateImgObj[nameTit]
+
     if (type === 'urlImg') {
-      nameTit = name
+      imgClassName = cateImgObj['公共批次']
     }
     
-    var imgClassName = cateImgObj[nameTit]
     var ulEle // 设置图片列表UL
     if ($('.activeImgWrap')[0]) {
       ulEle = $($('.activeImgWrap')[0])
