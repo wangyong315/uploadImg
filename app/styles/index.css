@@ -270,7 +270,15 @@ ul li{
 
 .node-item {
   margin-left: 16px;
+  padding-left: 8px;
+  font-size: 14px;
+  line-height: 28px;
   cursor: pointer;
+}
+
+.node-item:hover {
+  background-color: #daa520;
+  border-radius: 8px;
 }
 
 .ce_ceng_close::before {
